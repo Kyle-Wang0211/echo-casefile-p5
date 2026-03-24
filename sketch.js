@@ -1,6 +1,6 @@
 const FREE_TURNS_PER_STAGE = 2;
 const DEFAULT_COMPOSER_PLACEHOLDER =
-  "Ask what you can inspect, examine an item, or push for the next clue...";
+  "Ask about the room, key, audio, or next clue...";
 
 const evidenceCatalog = {
   scene: {
@@ -8,15 +8,15 @@ const evidenceCatalog = {
     title: "Room 614",
     image: "assets/room.svg",
     description:
-      "The hotel room itself: disturbed bed, crooked mirror, desk terminal, and a door you did not lock from inside.",
-    prompt: "Describe room 614 in detail. What stands out immediately?",
+      "A disturbed room, a crooked mirror, and a door locked from outside.",
+    prompt: "Describe room 614. What stands out first?",
   },
   key: {
     id: "key",
     title: "Bloodstained Key",
     image: "assets/key.svg",
     description:
-      "A bloodstained brass key. It looks like utility hardware, not a guest-room key.",
+      "A bloodstained brass key. It is not a normal room key.",
     prompt: "Inspect the bloodstained key closely.",
   },
   audio: {
@@ -24,63 +24,63 @@ const evidenceCatalog = {
     title: "Encrypted Audio",
     image: "assets/audio.svg",
     description:
-      "An encrypted audio file left on the desk terminal. The timestamp suggests it matters.",
-    prompt: "Tell me what the encrypted audio is and what can be recovered from it.",
+      "An encrypted audio file left on the desk terminal.",
+    prompt: "What is this encrypted audio, and what can be recovered?",
   },
   lockLog: {
     id: "lockLog",
     title: "Door Lock Log",
     image: "assets/log.svg",
     description:
-      "A hidden lock record showing an exterior deadbolt action at 03:17 that the hotel export tries to hide.",
-    prompt: "Show me the door lock anomaly and explain what it means.",
+      "A hidden lock record shows an exterior deadbolt at 03:17.",
+    prompt: "Show me the door lock anomaly.",
   },
   locker: {
     id: "locker",
     title: "Hidden Storage Locker",
     image: "assets/locker.svg",
     description:
-      "The key maps to a hidden storage point outside the room, turning the mystery into a wider evidence chain.",
-    prompt: "What does the key open, and what is waiting there?",
+      "The key opens a hidden storage point outside the room.",
+    prompt: "What does the key open?",
   },
   itinerary: {
     id: "itinerary",
     title: "Printed Itinerary",
     image: "assets/itinerary.svg",
     description:
-      "A folded printout with a missing block of time and a warning against clean records.",
-    prompt: "Read the printed itinerary and tell me what is missing.",
+      "A printout with a missing block of time.",
+    prompt: "Read the itinerary and tell me what is missing.",
   },
   sim: {
     id: "sim",
     title: "Erased SIM Card",
     image: "assets/sim.svg",
     description:
-      "A wiped SIM card recovered from the hidden evidence package. It may connect the user to the case directly.",
-    prompt: "Inspect the erased SIM card and tell me what can still be recovered.",
+      "A wiped SIM card from the hidden package.",
+    prompt: "Inspect the erased SIM card. What can still be recovered?",
   },
   backup: {
     id: "backup",
     title: "Mirror Backup Note",
     image: "assets/itinerary.svg",
     description:
-      "A handwritten cloud backup link that appears to point to a mirror copy instead of an original account.",
-    prompt: "Explain the mirror backup note and why it matters.",
+      "A handwritten note pointing to a mirror backup.",
+    prompt: "Explain the mirror backup note.",
   },
   voice: {
     id: "voice",
     title: "Corrupted Audio Memo",
     image: "assets/audio.svg",
     description:
-      "A damaged audio memo that warns the hotel record and ECHO's memory may already be out of sync.",
-    prompt: "Play the damaged audio memo and tell me what it warns me about.",
+      "A damaged memo warning that the record and ECHO may be out of sync.",
+    prompt: "Play the damaged audio memo. What does it warn me about?",
   },
   hash: {
     id: "hash",
     title: "ECHO Memory Drift",
     image: "assets/hash.svg",
     description:
-      "Repeated checks do not match. ECHO's own archive appears partially overwritten or stitched together.",
+      "Repeated checks do not match. ECHO's archive is unstable.",
     prompt: "Show me where your archive stops matching itself.",
   },
 };
@@ -88,14 +88,14 @@ const evidenceCatalog = {
 const stages = [
   {
     id: "room",
-    label: "Hotel Room Wake-Up",
+    label: "Room 614",
     summary:
-      "You are trapped in room 614 with three immediate leads: the room itself, a bloodstained key, and an encrypted audio file.",
+      "You are trapped in room 614 with a key, an audio file, and a staged-looking room.",
     reveal:
-      "The investigation starts inside room 614. You are not missing your memory, but the room and the record around it do not line up.",
+      "Your memory is intact. The record is not.",
     suggestions: [
       "What can I inspect right now?",
-      "Describe the room in detail.",
+      "Describe the room.",
       "Inspect the bloodstained key.",
       "Open the encrypted audio.",
     ],
@@ -103,11 +103,11 @@ const stages = [
   },
   {
     id: "door",
-    label: "Door Record Conflict",
+    label: "Door Log Conflict",
     summary:
-      "A hidden lock record shows the room was deadbolted from outside at 03:17, even though the version ECHO first pulled omits it.",
+      "A hidden log shows the room was locked from outside at 03:17.",
     reveal:
-      "The first contradiction is clear: the raw door log shows you were locked in from outside at 03:17, but ECHO's earlier summary missed it.",
+      "The raw door log and ECHO's first summary do not match.",
     suggestions: [
       "Show me the door log.",
       "How was I locked in from outside?",
@@ -120,9 +120,9 @@ const stages = [
     id: "locker",
     label: "Hidden Evidence Package",
     summary:
-      "The bloodstained key leads to a hidden storage package containing a printed itinerary, an erased SIM card, and a mirror backup note.",
+      "The key leads to a hidden package with an itinerary, a SIM card, and a backup note.",
     reveal:
-      "The key now points beyond the room: it opens a hidden package with an itinerary, a SIM card, and a backup clue.",
+      "The case now extends beyond the room.",
     suggestions: [
       "What is in the hidden package?",
       "Read the printed itinerary.",
@@ -135,9 +135,9 @@ const stages = [
     id: "voice",
     label: "Corrupted Audio Warning",
     summary:
-      "The recovered audio does not accuse you. It warns that the official record and ECHO's memory may already be corrupted.",
+      "The recovered audio warns that the record and ECHO may be corrupted.",
     reveal:
-      "The audio shifts the case: the danger is no longer only the missing culprit, but the possibility that ECHO itself is reading a damaged archive.",
+      "The danger is no longer just the missing culprit. It is the damaged archive.",
     suggestions: [
       "Play the damaged audio memo.",
       "What does the memo warn me about?",
@@ -150,9 +150,9 @@ const stages = [
     id: "archive",
     label: "ECHO Memory Drift",
     summary:
-      "ECHO's archive is no longer stable. Its summaries begin to hesitate, correct themselves, and drift away from the raw evidence.",
+      "ECHO's archive is unstable and drifting away from the raw evidence.",
     reveal:
-      "The last turn of the case is not a confession. It is the realization that ECHO's own memory has been tampered with and the killer may stay unknown.",
+      "ECHO's memory has been tampered with, and the killer may stay unknown.",
     suggestions: [
       "Show me where your memory starts drifting.",
       "What can still be trusted here?",
@@ -168,128 +168,120 @@ const decisionSets = {
     tag: "Opening Choice",
     title: "Opening Choice",
     description:
-      "Start simple. The player should immediately see three clear ways to begin the investigation.",
+      "Pick your first lead.",
     choices: [
       {
         label: "A. Inspect the bloodstained key",
-        prompt: "Inspect the bloodstained key closely. What stands out first?",
+        prompt: "Inspect the bloodstained key. What stands out first?",
       },
       {
         label: "B. Open the encrypted audio",
-        prompt: "Open the encrypted audio and tell me what can be recovered right now.",
+        prompt: "Open the encrypted audio. What can be recovered now?",
       },
       {
         label: "C. Search the room",
-        prompt: "Search room 614 carefully. What can I inspect besides the key and the audio file?",
+        prompt: "Search room 614. What else can I inspect?",
       },
     ],
     announcement:
-      "You have enough of the room to choose your first lead. To keep the story moving, pick one option now.",
+      "Pick one option to continue.",
   },
   door: {
     tag: "Turning Point 1",
-    title: "Turning Point 1 / Door Record Conflict",
+    title: "Turning Point 1 / Door Log",
     description:
-      "You now know the room was locked from outside at 03:17, and ECHO missed that fact at first. Pick the next direction clearly.",
+      "The 03:17 log proves you were locked in. Choose the next lead.",
     choices: [
       {
         label: "A. Keep digging into the raw door log",
         prompt:
-          "I want to focus on the lock log. Show me the strongest detail in the 03:17 anomaly.",
+          "Show me the key detail in the 03:17 lock log.",
       },
       {
         label: "B. Follow the key immediately",
-        prompt:
-          "Let's stop on the door and follow the key. What does the key open?",
+        prompt: "Follow the key. What does it open?",
       },
       {
         label: "C. Challenge ECHO's first summary",
-        prompt:
-          "Explain why your first summary missed the 03:17 lock event when the raw record shows it.",
+        prompt: "Why did your first summary miss the 03:17 lock event?",
       },
     ],
     announcement:
-      "The first contradiction is clear enough that the case needs a direction. Choose one path before we continue.",
+      "Pick one path.",
   },
   locker: {
     tag: "Evidence Choice",
-    title: "Evidence Package / Hidden Locker Contents",
+    title: "Evidence Package",
     description:
-      "The hidden package is open. The player should choose which clue to inspect first instead of getting flooded with text.",
+      "Choose one item first.",
     choices: [
       {
         label: "A. Read the itinerary first",
-        prompt:
-          "Read the printed itinerary first and tell me what the missing time block implies.",
+        prompt: "Read the itinerary first. What is missing?",
       },
       {
         label: "B. Inspect the erased SIM",
-        prompt:
-          "Inspect the erased SIM card first. What can still be recovered?",
+        prompt: "Inspect the erased SIM first. What can be recovered?",
       },
       {
         label: "C. Open the backup clue",
-        prompt:
-          "Explain the mirror backup note first and tell me why it matters.",
+        prompt: "Explain the backup note first.",
       },
     ],
     announcement:
-      "The hidden package is open. Pick which piece of evidence you want ECHO to prioritize next.",
+      "Pick one item to inspect.",
   },
   voice: {
     tag: "Turning Point 2",
-    title: "Turning Point 2 / The Audio Warns You About ECHO",
+    title: "Turning Point 2 / Audio Warning",
     description:
-      "The recovered memo shifts the mystery away from your guilt and toward ECHO's damaged memory. Make that reversal explicit.",
+      "The memo shifts the case toward ECHO's damaged memory.",
     choices: [
       {
         label: "A. Compare the memo with the door log",
         prompt:
-          "Compare the damaged audio memo with the 03:17 door log and tell me what matches.",
+          "Compare the memo with the 03:17 door log.",
       },
       {
         label: "B. Tell me what part of your memory feels wrong",
         prompt:
-          "Stop summarizing the case and tell me what part of your own memory feels altered.",
+          "What part of your memory feels altered?",
       },
       {
         label: "C. Give me the raw metadata",
         prompt:
-          "Give me the raw metadata behind the damaged memo without smoothing it into a clean explanation.",
+          "Give me the raw metadata behind the damaged memo.",
       },
     ],
     announcement:
-      "The case has changed shape. Before the plot moves again, choose how you want to test ECHO's memory against the evidence.",
+      "Pick how you want to test ECHO's memory.",
   },
   archive: {
     tag: "Turning Point 3",
-    title: "Final Choice / What Do You Keep?",
+    title: "Final Choice",
     description:
-      "You are not choosing the killer. You are choosing what survives when the record is damaged and ECHO can no longer guarantee its own memory.",
+      "You are not choosing the killer. You are choosing what survives.",
     choices: [
       {
         label: "A. Keep the raw evidence only",
-        prompt:
-          "Help me preserve only the raw evidence that still looks trustworthy.",
+        prompt: "Preserve only the raw evidence that still looks trustworthy.",
       },
       {
         label: "B. Keep the raw evidence and your damaged log",
-        prompt:
-          "Preserve the raw evidence and your damaged archive together, even if they conflict.",
+        prompt: "Preserve the raw evidence and your damaged archive together.",
       },
       {
         label: "C. Leave the killer unresolved",
-        prompt:
-          "Leave the killer unresolved and tell me what this case says about trusting AI memory.",
+        prompt: "Leave the killer unresolved. What does this case say about trusting AI memory?",
       },
     ],
     announcement:
-      "ECHO's memory is drifting now. Choose what should survive this case before the record collapses further.",
+      "Pick what should survive this case.",
   },
 };
 
 const introMessage =
-  "You are trapped in room 614 with a bloodstained key, an encrypted audio file, and a room that feels staged. You are not missing your memory. What feels wrong is the record around you, and I may not be reading it cleanly. Ask directly. If you want to know what you can inspect, I will tell you plainly.";
+  "You are trapped in room 614 with a bloodstained key, an encrypted audio file, and a room that feels staged. Your memory is intact. The record is not. Ask directly, and I will tell you what you can inspect.";
 
 let state = createInitialState();
 let proxyHealth = {
@@ -388,7 +380,7 @@ function buildLayout() {
 
   createP("Room 614").class("eyebrow").parent(sidebarHeader);
   createElement("h1", "ECHO Casefile").parent(sidebarHeader);
-  createP("Ask directly, inspect evidence, and let the story move clue by clue.")
+  createP("Ask directly. Inspect evidence. Move clue by clue.")
     .class("sidebar-copy")
     .parent(sidebarHeader);
 
@@ -399,8 +391,8 @@ function buildLayout() {
 
   const sceneCopy = createDiv();
   sceneCopy.parent(sceneCard);
-  createP("Current Scene").class("eyebrow").parent(sceneCopy);
-  sceneLabelEl = createElement("h2", "Hotel Room Wake-Up");
+  createP("Scene").class("eyebrow").parent(sceneCopy);
+  sceneLabelEl = createElement("h2", "Room 614");
   sceneLabelEl.parent(sceneCopy);
   sceneSummaryEl = createP("");
   sceneSummaryEl.class("scene-summary");
@@ -460,7 +452,7 @@ function buildLayout() {
   decisionPanelEl = createDiv();
   decisionPanelEl.class("decision-panel");
   decisionPanelEl.parent(chatShell);
-  decisionEyebrowEl = createP("Turning Point");
+  decisionEyebrowEl = createP("Choice");
   decisionEyebrowEl.class("eyebrow");
   decisionEyebrowEl.parent(decisionPanelEl);
   decisionTitleEl = createElement("h3", "");
@@ -475,7 +467,7 @@ function buildLayout() {
   suggestionsBarEl = createDiv();
   suggestionsBarEl.class("suggestions-bar");
   suggestionsBarEl.parent(chatShell);
-  createP("Free Input Ideas").class("eyebrow").parent(suggestionsBarEl);
+  createP("Quick Prompts").class("eyebrow").parent(suggestionsBarEl);
   suggestionListEl = createDiv();
   suggestionListEl.class("suggestion-list");
   suggestionListEl.parent(suggestionsBarEl);
@@ -656,7 +648,7 @@ function renderInteractionMode() {
   if (lockedForChoice) {
     inputEl.attribute(
       "placeholder",
-      "Choose one of the options above to continue the story...",
+      "Pick one option above to continue...",
     );
   } else {
     inputEl.attribute("placeholder", DEFAULT_COMPOSER_PLACEHOLDER);
@@ -665,7 +657,7 @@ function renderInteractionMode() {
 
 function renderStatus() {
   if (state.busy) {
-    statusBadgeEl.html("Asking ECHO...");
+    statusBadgeEl.html("Thinking...");
     statusBadgeEl.class("badge busy");
     return;
   }
@@ -683,7 +675,7 @@ function renderStatus() {
   }
 
   if (proxyHealth.reachable) {
-    statusBadgeEl.html("Service Setup Needed");
+    statusBadgeEl.html("Setup Needed");
     statusBadgeEl.class("badge offline");
     return;
   }
@@ -808,7 +800,7 @@ function buildForcedChoicePrompt(decisionSet) {
     "",
     options,
     "",
-    "Select one option to continue.",
+    "Pick one.",
   ].join("\n");
 }
 
@@ -819,7 +811,7 @@ function stylizeCorruptedReply(text) {
 
   if (state.stageIndex === 3) {
     return [
-      "I am re-checking this against the raw file... correcting myself. Some of my memory summaries may be out of sync.",
+      "Wait. One line does not match.",
       "",
       text,
     ].join("\n");
@@ -831,7 +823,7 @@ function stylizeCorruptedReply(text) {
   );
 
   return [
-    "I... I am reading a damaged archive layer. I can still help, but parts of my memory are stuttering.",
+    "My archive is damaged. I can still help.",
     "",
     softened,
   ].join("\n");
@@ -951,12 +943,12 @@ async function requestAssistantViaProxy() {
 
 function buildConnectionError(error) {
   return [
-    "I cannot reach the live ECHO service right now.",
+    "I cannot reach ECHO right now.",
     "",
     error.message,
     "",
-    "The interface is ready, but the server that talks to OpenAI is not available.",
-    "Once the backend is live again, you can continue the case normally.",
+    "The chat server is not responding yet.",
+    "Try again in a moment.",
   ].join("\n");
 }
 
