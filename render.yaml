@@ -3,6 +3,7 @@ services:
     name: echo-casefile-p5
     runtime: python
     plan: free
+    autoDeploy: false
     buildCommand: ""
     startCommand: python3 server.py
     envVars:
