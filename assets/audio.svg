@@ -1,0 +1,7 @@
+<svg width="240" height="160" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="240" height="160" rx="18" fill="#EEF3F6"/>
+  <rect x="26" y="24" width="188" height="112" rx="12" fill="#25313C"/>
+  <path d="M42 80H54L60 58L68 104L78 46L88 116L98 70L108 88L118 54L126 104L136 66L146 80L154 48L164 96L174 74L184 80L198 80" stroke="#80B5C7" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="42" y="38" width="66" height="14" rx="7" fill="#C9A15F"/>
+  <text x="75" y="48" fill="#25313C" font-size="9" text-anchor="middle" font-family="Arial, sans-serif">VOX_0317.enc</text>
+</svg>

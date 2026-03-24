@@ -1,0 +1,11 @@
+<svg width="240" height="160" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="240" height="160" rx="18" fill="#F5F0E4"/>
+  <path d="M62 18H160L190 50V138C190 142.418 186.418 146 182 146H62C57.5817 146 54 142.418 54 138V26C54 21.5817 57.5817 18 62 18Z" fill="#FFFBF6" stroke="#D1C3A9" stroke-width="2"/>
+  <path d="M160 18V42C160 46.4183 163.582 50 168 50H190" fill="#EFE4D1"/>
+  <rect x="72" y="54" width="78" height="8" rx="4" fill="#315A76"/>
+  <rect x="72" y="72" width="98" height="7" rx="3.5" fill="#D9CCB8"/>
+  <rect x="72" y="86" width="98" height="7" rx="3.5" fill="#D9CCB8"/>
+  <rect x="72" y="100" width="72" height="7" rx="3.5" fill="#D9CCB8"/>
+  <rect x="112" y="114" width="58" height="10" rx="5" fill="#B64A43"/>
+  <text x="141" y="122" fill="#FFFBF6" font-size="8" text-anchor="middle" font-family="Arial, sans-serif">MISSING</text>
+</svg>
