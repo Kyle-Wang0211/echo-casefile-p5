@@ -99,7 +99,7 @@ const stages = [
       "Inspect the bloodstained key.",
       "Open the encrypted audio.",
     ],
-    unlocks: ["scene", "key", "audio"],
+    unlocks: ["key", "audio"],
   },
   {
     id: "door",

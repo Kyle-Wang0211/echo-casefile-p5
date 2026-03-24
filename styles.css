@@ -519,9 +519,27 @@ textarea:focus,
 }
 
 @media (max-width: 640px) {
+  body {
+    overflow-y: auto;
+  }
+
   .app-shell {
     padding: 10px;
     gap: 10px;
+  }
+
+  .sidebar {
+    overflow: visible;
+  }
+
+  .sidebar-section {
+    overflow: visible;
+  }
+
+  .evidence-list {
+    height: auto;
+    overflow: visible;
+    padding-bottom: 10px;
   }
 
   .chat-header,
@@ -549,11 +567,20 @@ textarea:focus,
 
   .evidence-card {
     grid-template-columns: 92px minmax(0, 1fr);
+    align-items: start;
   }
 
   .evidence-card img {
     width: 92px;
     height: 78px;
+  }
+
+  .evidence-copy {
+    min-width: 0;
+  }
+
+  .evidence-copy p {
+    word-break: break-word;
   }
 
   .composer {
