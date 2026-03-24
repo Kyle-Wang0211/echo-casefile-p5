@@ -142,7 +142,6 @@ class AppHandler(SimpleHTTPRequestHandler):
             "instructions": load_prompt(),
             "input": input_items,
             "reasoning": {"effort": "minimal"},
-            "temperature": 0.8,
             "max_output_tokens": 320,
             "store": False,
         }
