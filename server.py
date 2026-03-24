@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parent
 PROMPT_PATH = ROOT / "prompts" / "echo_system_prompt.txt"
 DEFAULT_MODEL = "gpt-5-mini"
 OPENAI_URL = "https://api.openai.com/v1/responses"
+ALLOWED_ORIGIN = os.getenv("ALLOWED_ORIGIN", "*")
 
 
 def load_prompt() -> str:
@@ -66,6 +67,21 @@ class AppHandler(SimpleHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
+
+    def _send_cors_headers(self) -> None:
+        self.send_header("Access-Control-Allow-Origin", ALLOWED_ORIGIN)
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+    def end_headers(self) -> None:
+        if self.path.startswith("/api/"):
+            self._send_cors_headers()
+        super().end_headers()
+
+    def do_OPTIONS(self) -> None:
+        self.send_response(204)
+        self._send_cors_headers()
+        self.end_headers()
 
     def do_GET(self) -> None:
         if self.path == "/api/health":
@@ -184,9 +200,10 @@ class AppHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
+    host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", "8000"))
-    server = ThreadingHTTPServer(("127.0.0.1", port), AppHandler)
-    print(f"Serving ECHO Casefile at http://127.0.0.1:{port}")
+    server = ThreadingHTTPServer((host, port), AppHandler)
+    print(f"Serving ECHO Casefile at http://{host}:{port}")
     server.serve_forever()
 
 

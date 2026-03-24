@@ -11,9 +11,8 @@ A simplified AI-driven mystery prototype designed to be shown as a p5.js project
 - A clearer story: the unresolved ending is about corrupted AI memory, not about accusing the player
 - Prompt behavior that answers "what can I inspect?" directly
 - Late-stage ECHO dialogue that becomes slightly hesitant or self-correcting
-- Two connection paths:
-  - browser key mode for quick classroom demo
-  - optional local proxy mode if you want a safer setup later
+- No API-key UI in the player-facing experience
+- Server-side OpenAI integration for safer public deployment
 
 ## Project Files
 
@@ -24,26 +23,27 @@ A simplified AI-driven mystery prototype designed to be shown as a p5.js project
 - `prompts/echo_system_prompt.txt`: Production system prompt
 - `docs/system-prompt.md`: Prompt notes and copy-ready reference
 - `docs/conversation-flow.md`: Simplified flow for the assignment write-up
-- `server.py`: Optional local proxy if you decide not to use browser key mode
+- `server.py`: The web server and OpenAI proxy for public deployment
+- `render.yaml`: Render deployment blueprint for a public full-stack version
 
-## Fastest Classroom Demo Setup
-
-1. Open the project in a browser or move `index.html`, `styles.css`, `sketch.js`, and `assets/` into your p5 project.
-2. Paste a temporary OpenAI API key into the left-side API panel.
-3. Keep the default model or change it.
-4. Start chatting with ECHO directly in the page.
-
-## Optional Safer Setup
-
-If you do not want to use a browser key, you can still run the local proxy:
+## Local Run
 
 ```bash
 export OPENAI_API_KEY="your_api_key_here"
 python3 server.py
 ```
 
-Then open the printed local URL and leave the browser key field empty.
+Then open the printed local URL. The same server hosts the UI and the `/api/chat` endpoint.
+
+## Public Deployment
+
+The cleanest public setup is to deploy the full repository as one web service so the frontend and backend stay on the same origin.
+
+This repo includes `render.yaml`, so you can deploy it on Render and set:
+
+- `OPENAI_API_KEY`
+- `OPENAI_MODEL` (optional, defaults to `gpt-5-mini`)
 
 ## Important Note
 
-Browser key mode is convenient for a class demo, but OpenAI's API key safety guidance says keys should not be deployed in client-side environments like browsers in production. Use it only as a temporary presentation shortcut.
+Do not put your OpenAI API key into client-side JavaScript for a public site. Keep it on the server as an environment variable. If a key has already been shared in an unsafe place, rotate it in the OpenAI dashboard before using the project publicly.

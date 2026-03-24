@@ -1,6 +1,3 @@
-const KEY_STORAGE = "echo_demo_openai_key";
-const MODEL_STORAGE = "echo_demo_openai_model";
-const DEFAULT_MODEL = "gpt-5-mini";
 const FREE_TURNS_PER_STAGE = 2;
 const DEFAULT_COMPOSER_PLACEHOLDER =
   "Ask what you can inspect, examine an item, or push for the next clue...";
@@ -315,12 +312,9 @@ let decisionListEl;
 let suggestionsBarEl;
 let suggestionListEl;
 let statusBadgeEl;
-let modelBadgeEl;
 let composerEl;
 let inputEl;
 let sendButtonEl;
-let apiKeyInputEl;
-let modelInputEl;
 
 function createInitialState() {
   return {
@@ -412,46 +406,6 @@ function buildLayout() {
   sceneSummaryEl.class("scene-summary");
   sceneSummaryEl.parent(sceneCopy);
 
-  const settingsCard = createDiv();
-  settingsCard.class("settings-card");
-  settingsCard.parent(sidebar);
-  createP("p5.js Demo API").class("eyebrow").parent(settingsCard);
-  createP("Paste a temporary OpenAI API key for classroom demo use.")
-    .class("mini-note")
-    .parent(settingsCard);
-
-  const keyRow = createDiv();
-  keyRow.class("key-row");
-  keyRow.parent(settingsCard);
-  apiKeyInputEl = createInput(loadStoredKey(), "password");
-  apiKeyInputEl.class("key-input");
-  apiKeyInputEl.attribute("placeholder", "Paste OpenAI API key");
-  apiKeyInputEl.parent(keyRow);
-
-  const useKeyButton = createButton("Use Key");
-  useKeyButton.class("key-button");
-  useKeyButton.parent(keyRow);
-  useKeyButton.mousePressed(() => {
-    storeKey(apiKeyInputEl.value());
-    renderStatus();
-  });
-
-  const modelRow = createDiv();
-  modelRow.class("key-row");
-  modelRow.parent(settingsCard);
-  modelInputEl = createInput(loadStoredModel() || DEFAULT_MODEL);
-  modelInputEl.class("key-input");
-  modelInputEl.attribute("placeholder", DEFAULT_MODEL);
-  modelInputEl.parent(modelRow);
-
-  const saveModelButton = createButton("Save Model");
-  saveModelButton.class("key-button");
-  saveModelButton.parent(modelRow);
-  saveModelButton.mousePressed(() => {
-    storeModel(modelInputEl.value());
-    renderStatus();
-  });
-
   const sidebarSection = createDiv();
   sidebarSection.class("sidebar-section");
   sidebarSection.parent(sidebar);
@@ -485,13 +439,9 @@ function buildLayout() {
   headerActions.class("header-actions");
   headerActions.parent(chatHeader);
 
-  statusBadgeEl = createSpan("Paste API Key");
+  statusBadgeEl = createSpan("Connecting...");
   statusBadgeEl.class("badge warning");
   statusBadgeEl.parent(headerActions);
-
-  modelBadgeEl = createSpan(loadStoredModel() || DEFAULT_MODEL);
-  modelBadgeEl.class("badge subtle");
-  modelBadgeEl.parent(headerActions);
 
   const resetButton = createButton("Reset");
   resetButton.class("reset-button");
@@ -714,8 +664,6 @@ function renderInteractionMode() {
 }
 
 function renderStatus() {
-  modelBadgeEl.html(loadStoredModel() || DEFAULT_MODEL);
-
   if (state.busy) {
     statusBadgeEl.html("Asking ECHO...");
     statusBadgeEl.class("badge busy");
@@ -728,26 +676,20 @@ function renderStatus() {
     return;
   }
 
-  if (loadStoredKey()) {
-    statusBadgeEl.html("Browser Key Ready");
-    statusBadgeEl.class("badge online");
-    return;
-  }
-
   if (proxyHealth.reachable && proxyHealth.configured) {
-    statusBadgeEl.html("Proxy Ready");
+    statusBadgeEl.html("ECHO Online");
     statusBadgeEl.class("badge online");
     return;
   }
 
   if (proxyHealth.reachable) {
-    statusBadgeEl.html("Paste API Key");
-    statusBadgeEl.class("badge warning");
+    statusBadgeEl.html("Service Setup Needed");
+    statusBadgeEl.class("badge offline");
     return;
   }
 
-  statusBadgeEl.html("Paste API Key");
-  statusBadgeEl.class("badge warning");
+  statusBadgeEl.html("ECHO Offline");
+  statusBadgeEl.class("badge offline");
 }
 
 function formatAssistantText(text) {
@@ -974,66 +916,15 @@ async function submitMessage(rawText, options = {}) {
 }
 
 async function requestAssistantReply() {
-  const browserKey = loadStoredKey();
-  if (browserKey) {
-    return requestAssistantDirect(browserKey);
-  }
-
   if (proxyHealth.reachable) {
     return requestAssistantViaProxy();
   }
 
-  throw new Error(
-    "Paste an OpenAI API key in the sidebar first. This p5.js demo uses a browser key for class presentation.",
-  );
-}
-
-async function requestAssistantDirect(apiKey) {
-  const model = loadStoredModel() || DEFAULT_MODEL;
-  const response = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      instructions: await loadPromptText(),
-      input: [
-        {
-          role: "developer",
-          content: buildStateMessage(),
-        },
-        ...state.messages.slice(-12),
-      ],
-      reasoning: { effort: "minimal" },
-      temperature: 0.8,
-      max_output_tokens: 320,
-      store: false,
-    }),
-  });
-
-  let payload = {};
-  try {
-    payload = await response.json();
-  } catch {
-    payload = {};
-  }
-
-  if (!response.ok) {
-    throw new Error(payload.error?.message || payload.error || "OpenAI API request failed.");
-  }
-
-  const text = payload.output_text || extractOutputText(payload);
-  if (!text) {
-    throw new Error("The OpenAI API returned no text output.");
-  }
-
-  return text;
+  throw new Error("The live ECHO service is not reachable right now.");
 }
 
 async function requestAssistantViaProxy() {
-  const response = await fetch("/api/chat", {
+  const response = await fetch(getApiUrl("/api/chat"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -1058,53 +949,25 @@ async function requestAssistantViaProxy() {
   return payload.text;
 }
 
-function extractOutputText(payload) {
-  const chunks = [];
-  (payload.output || []).forEach((item) => {
-    if (item.type !== "message") {
-      return;
-    }
-    (item.content || []).forEach((content) => {
-      if (content.type === "output_text" || content.type === "text") {
-        if (content.text) {
-          chunks.push(content.text);
-        }
-      }
-    });
-  });
-  return chunks.join("\n").trim();
-}
-
-async function loadPromptText() {
-  if (window.__echoPromptText) {
-    return window.__echoPromptText;
-  }
-
-  const response = await fetch("prompts/echo_system_prompt.txt");
-  if (!response.ok) {
-    throw new Error("Could not load the system prompt file.");
-  }
-
-  window.__echoPromptText = await response.text();
-  return window.__echoPromptText;
-}
-
 function buildConnectionError(error) {
   return [
-    "I cannot reach the live OpenAI channel yet.",
+    "I cannot reach the live ECHO service right now.",
     "",
     error.message,
     "",
-    "For classroom demo use:",
-    "1. Paste an OpenAI API key in the left panel",
-    "2. Save the model if you want to change it",
-    "3. Ask ECHO about the evidence directly",
+    "The interface is ready, but the server that talks to OpenAI is not available.",
+    "Once the backend is live again, you can continue the case normally.",
   ].join("\n");
+}
+
+function getApiUrl(path) {
+  const base = (window.ECHO_API_BASE || "").trim().replace(/\/$/, "");
+  return base ? `${base}${path}` : path;
 }
 
 async function checkProxyHealth() {
   try {
-    const response = await fetch("/api/health");
+    const response = await fetch(getApiUrl("/api/health"));
     if (!response.ok) {
       throw new Error("Proxy not available");
     }
@@ -1121,30 +984,4 @@ async function checkProxyHealth() {
   } finally {
     renderStatus();
   }
-}
-
-function storeKey(value) {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    sessionStorage.removeItem(KEY_STORAGE);
-    return;
-  }
-  sessionStorage.setItem(KEY_STORAGE, trimmed);
-}
-
-function loadStoredKey() {
-  return sessionStorage.getItem(KEY_STORAGE) || "";
-}
-
-function storeModel(value) {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    sessionStorage.removeItem(MODEL_STORAGE);
-    return;
-  }
-  sessionStorage.setItem(MODEL_STORAGE, trimmed);
-}
-
-function loadStoredModel() {
-  return sessionStorage.getItem(MODEL_STORAGE) || DEFAULT_MODEL;
 }

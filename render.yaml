@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: echo-casefile-p5
+    runtime: python
+    plan: free
+    buildCommand: ""
+    startCommand: python3 server.py
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5-mini
+      - key: HOST
+        value: 0.0.0.0
