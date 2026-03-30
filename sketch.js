@@ -1,95 +1,171 @@
 const FREE_TURNS_PER_STAGE = 2;
-const DEFAULT_COMPOSER_PLACEHOLDER = "Type your message...";
+const DEFAULT_COMPOSER_PLACEHOLDER = "Type your message... / 输入消息...";
+
+function bi(en, zh) {
+  return { en, zh };
+}
+
+function plainText(value) {
+  return typeof value === "string" ? value : value.en;
+}
+
+function bilingualText(value) {
+  return typeof value === "string" ? value : `${value.en}\n${value.zh}`;
+}
+
+function bilingualInline(value) {
+  return typeof value === "string"
+    ? escapeHtml(value)
+    : `${escapeHtml(value.en)} <span class="bi-divider">/</span> ${escapeHtml(value.zh)}`;
+}
+
+function bilingualBlock(value) {
+  return typeof value === "string"
+    ? escapeHtml(value)
+    : `<span class="bi-line bi-en">${escapeHtml(value.en)}</span><span class="bi-line bi-zh">${escapeHtml(value.zh)}</span>`;
+}
 
 const evidenceCatalog = {
   scene: {
     id: "scene",
-    title: "Room 614",
+    title: bi("Room 614", "614房间"),
     image: "assets/room.svg",
-    description:
+    description: bi(
       "A disturbed room, a crooked mirror, and a door locked from outside.",
-    prompt: "Describe room 614. What stands out first?",
+      "一间被翻动过的房间、一面歪斜的镜子，以及一扇从外面上锁的门。",
+    ),
+    prompt: bi(
+      "Describe room 614. What stands out first?",
+      "描述一下614房间。最显眼的是什么？",
+    ),
   },
   key: {
     id: "key",
-    title: "Bloodstained Key",
+    title: bi("Bloodstained Key", "带血的钥匙"),
     image: "assets/key.svg",
-    description:
+    description: bi(
       "A bloodstained brass key. It is not a normal room key.",
-    prompt: "Inspect the bloodstained key closely.",
+      "一把带血的黄铜钥匙。它不是普通的房门钥匙。",
+    ),
+    prompt: bi(
+      "Inspect the bloodstained key closely.",
+      "仔细检查这把带血的钥匙。",
+    ),
   },
   audio: {
     id: "audio",
-    title: "Encrypted Audio",
+    title: bi("Encrypted Audio", "加密音频"),
     image: "assets/audio.svg",
-    description:
+    description: bi(
       "An encrypted audio file left on the desk terminal.",
-    prompt: "What is this encrypted audio, and what can be recovered?",
+      "桌面终端上留着一段加密音频文件。",
+    ),
+    prompt: bi(
+      "What is this encrypted audio, and what can be recovered?",
+      "这段加密音频是什么？现在能恢复出什么？",
+    ),
   },
   lockLog: {
     id: "lockLog",
-    title: "Door Lock Log",
+    title: bi("Door Lock Log", "门锁记录"),
     image: "assets/log.svg",
-    description:
+    description: bi(
       "A hidden lock record shows an exterior deadbolt at 03:17.",
-    prompt: "Show me the door lock anomaly.",
+      "一条隐藏的门锁记录显示，03:17 有人从外面反锁了房门。",
+    ),
+    prompt: bi(
+      "Show me the door lock anomaly.",
+      "给我看门锁异常记录。",
+    ),
   },
   locker: {
     id: "locker",
-    title: "Hidden Storage Locker",
+    title: bi("Hidden Storage Locker", "隐藏储物点"),
     image: "assets/locker.svg",
-    description:
+    description: bi(
       "The key opens a hidden storage point outside the room.",
-    prompt: "What does the key open?",
+      "这把钥匙能打开房间外的一个隐藏储物点。",
+    ),
+    prompt: bi(
+      "What does the key open?",
+      "这把钥匙能打开什么？",
+    ),
   },
   itinerary: {
     id: "itinerary",
-    title: "Printed Itinerary",
+    title: bi("Printed Itinerary", "打印行程单"),
     image: "assets/itinerary.svg",
-    description:
+    description: bi(
       "A printout with a missing block of time.",
-    prompt: "Read the itinerary and tell me what is missing.",
+      "一张打印出来的行程单，其中缺失了一段时间。",
+    ),
+    prompt: bi(
+      "Read the itinerary and tell me what is missing.",
+      "读一下这张行程单，告诉我缺了什么。",
+    ),
   },
   sim: {
     id: "sim",
-    title: "Erased SIM Card",
+    title: bi("Erased SIM Card", "被擦除的SIM卡"),
     image: "assets/sim.svg",
-    description:
+    description: bi(
       "A wiped SIM card from the hidden package.",
-    prompt: "Inspect the erased SIM card. What can still be recovered?",
+      "隐藏证据包里有一张被擦除的SIM卡。",
+    ),
+    prompt: bi(
+      "Inspect the erased SIM card. What can still be recovered?",
+      "检查这张被擦除的SIM卡。还能恢复出什么？",
+    ),
   },
   backup: {
     id: "backup",
-    title: "Mirror Backup Note",
+    title: bi("Mirror Backup Note", "镜像备份便条"),
     image: "assets/itinerary.svg",
-    description:
+    description: bi(
       "A handwritten note pointing to a mirror backup.",
-    prompt: "Explain the mirror backup note.",
+      "一张手写便条，指向一个镜像备份。",
+    ),
+    prompt: bi(
+      "Explain the mirror backup note.",
+      "解释一下这张镜像备份便条。",
+    ),
   },
   voice: {
     id: "voice",
-    title: "Corrupted Audio Memo",
+    title: bi("Corrupted Audio Memo", "损坏的音频备忘"),
     image: "assets/audio.svg",
-    description:
+    description: bi(
       "A damaged memo warning that the record and ECHO may be out of sync.",
-    prompt: "Play the damaged audio memo. What does it warn me about?",
+      "一段损坏的音频备忘，警告记录和ECHO可能已经不同步。",
+    ),
+    prompt: bi(
+      "Play the damaged audio memo. What does it warn me about?",
+      "播放这段损坏的音频备忘。它在警告我什么？",
+    ),
   },
   hash: {
     id: "hash",
-    title: "ECHO Memory Drift",
+    title: bi("ECHO Memory Drift", "ECHO记忆漂移"),
     image: "assets/hash.svg",
-    description:
+    description: bi(
       "Repeated checks do not match. ECHO's archive is unstable.",
-    prompt: "Show me where your archive stops matching itself.",
+      "重复校验彼此不一致。ECHO的档案已经不稳定了。",
+    ),
+    prompt: bi(
+      "Show me where your archive stops matching itself.",
+      "告诉我你的档案是从哪里开始自相矛盾的。",
+    ),
   },
 };
 
 const stages = [
   {
     id: "room",
-    label: "Room 614",
-    summary:
+    label: bi("Room 614", "614房间"),
+    summary: bi(
       "You are trapped in room 614 with a key, an audio file, and a staged-looking room.",
+      "你被困在614房间里，眼前有一把钥匙、一段音频文件，还有一个看起来被布置过的现场。",
+    ),
     reveal:
       "Your memory is intact. The record is not.",
     suggestions: [
@@ -102,9 +178,11 @@ const stages = [
   },
   {
     id: "door",
-    label: "Door Log Conflict",
-    summary:
+    label: bi("Door Log Conflict", "门锁记录冲突"),
+    summary: bi(
       "A hidden log shows the room was locked from outside at 03:17.",
+      "一条隐藏记录显示，这个房间在03:17被人从外面锁上了。",
+    ),
     reveal:
       "The raw door log and ECHO's first summary do not match.",
     suggestions: [
@@ -117,9 +195,11 @@ const stages = [
   },
   {
     id: "locker",
-    label: "Hidden Evidence Package",
-    summary:
+    label: bi("Hidden Evidence Package", "隐藏证据包"),
+    summary: bi(
       "The key leads to a hidden package with an itinerary, a SIM card, and a backup note.",
+      "这把钥匙指向一个隐藏证据包，里面有行程单、SIM卡和一张备份便条。",
+    ),
     reveal:
       "The case now extends beyond the room.",
     suggestions: [
@@ -132,9 +212,11 @@ const stages = [
   },
   {
     id: "voice",
-    label: "Corrupted Audio Warning",
-    summary:
+    label: bi("Corrupted Audio Warning", "损坏音频警告"),
+    summary: bi(
       "The recovered audio warns that the record and ECHO may be corrupted.",
+      "恢复出的音频警告你：记录和ECHO都可能已经被篡改。",
+    ),
     reveal:
       "The danger is no longer just the missing culprit. It is the damaged archive.",
     suggestions: [
@@ -147,9 +229,11 @@ const stages = [
   },
   {
     id: "archive",
-    label: "ECHO Memory Drift",
-    summary:
+    label: bi("ECHO Memory Drift", "ECHO记忆漂移"),
+    summary: bi(
       "ECHO's archive is unstable and drifting away from the raw evidence.",
+      "ECHO的档案已经不稳定，并开始偏离原始证据。",
+    ),
     reveal:
       "ECHO's memory has been tampered with, and the killer may stay unknown.",
     suggestions: [
@@ -164,123 +248,176 @@ const stages = [
 
 const decisionSets = {
   room: {
-    tag: "Opening Choice",
-    title: "Opening Choice",
-    description:
-      "Pick your first lead.",
+    tag: bi("Opening Choice", "初始选择"),
+    title: bi("Opening Choice", "初始选择"),
+    description: bi("Pick your first lead.", "选择你的第一条线索。"),
     choices: [
       {
-        label: "A. Inspect the bloodstained key",
-        prompt: "Inspect the bloodstained key. What stands out first?",
+        label: bi("A. Inspect the bloodstained key", "A. 检查带血的钥匙"),
+        prompt: bi(
+          "Inspect the bloodstained key. What stands out first?",
+          "检查这把带血的钥匙。最显眼的是什么？",
+        ),
       },
       {
-        label: "B. Open the encrypted audio",
-        prompt: "Open the encrypted audio. What can be recovered now?",
+        label: bi("B. Open the encrypted audio", "B. 打开加密音频"),
+        prompt: bi(
+          "Open the encrypted audio. What can be recovered now?",
+          "打开加密音频。现在能恢复出什么？",
+        ),
       },
       {
-        label: "C. Search the room",
-        prompt: "Search room 614. What else can I inspect?",
+        label: bi("C. Search the room", "C. 搜查房间"),
+        prompt: bi(
+          "Search room 614. What else can I inspect?",
+          "搜查614房间。我还能查看什么？",
+        ),
       },
     ],
-    announcement:
-      "Pick one option to continue.",
+    announcement: bi("Pick one option to continue.", "请选择一个选项继续。"),
   },
   door: {
-    tag: "Turning Point 1",
-    title: "Turning Point 1 / Door Log",
-    description:
+    tag: bi("Turning Point 1", "转折点1"),
+    title: bi("Turning Point 1 / Door Log", "转折点1 / 门锁记录"),
+    description: bi(
       "The 03:17 log proves you were locked in. Choose the next lead.",
+      "03:17的记录证明你是被锁在这里的。请选择下一条调查方向。",
+    ),
     choices: [
       {
-        label: "A. Keep digging into the raw door log",
-        prompt:
+        label: bi("A. Dig into the raw door log", "A. 深入查看原始门锁记录"),
+        prompt: bi(
           "Show me the key detail in the 03:17 lock log.",
+          "给我看03:17门锁记录里最关键的细节。",
+        ),
       },
       {
-        label: "B. Follow the key immediately",
-        prompt: "Follow the key. What does it open?",
+        label: bi("B. Follow the key", "B. 追查钥匙"),
+        prompt: bi(
+          "Follow the key. What does it open?",
+          "追查这把钥匙。它能打开什么？",
+        ),
       },
       {
-        label: "C. Challenge ECHO's first summary",
-        prompt: "Why did your first summary miss the 03:17 lock event?",
+        label: bi("C. Question ECHO's first summary", "C. 质疑ECHO最初的摘要"),
+        prompt: bi(
+          "Why did your first summary miss the 03:17 lock event?",
+          "为什么你最开始的摘要漏掉了03:17这条锁门记录？",
+        ),
       },
     ],
-    announcement:
-      "Pick one path.",
+    announcement: bi("Pick one path.", "请选择一条路径。"),
   },
   locker: {
-    tag: "Evidence Choice",
-    title: "Evidence Package",
-    description:
-      "Choose one item first.",
+    tag: bi("Evidence Choice", "证据选择"),
+    title: bi("Evidence Package", "证据包"),
+    description: bi("Choose one item first.", "先选择一个物品。"),
     choices: [
       {
-        label: "A. Read the itinerary first",
-        prompt: "Read the itinerary first. What is missing?",
+        label: bi("A. Read the itinerary", "A. 阅读行程单"),
+        prompt: bi(
+          "Read the itinerary first. What is missing?",
+          "先阅读行程单。缺了什么？",
+        ),
       },
       {
-        label: "B. Inspect the erased SIM",
-        prompt: "Inspect the erased SIM first. What can be recovered?",
+        label: bi("B. Inspect the erased SIM", "B. 检查被擦除的SIM卡"),
+        prompt: bi(
+          "Inspect the erased SIM first. What can be recovered?",
+          "先检查被擦除的SIM卡。还能恢复什么？",
+        ),
       },
       {
-        label: "C. Open the backup clue",
-        prompt: "Explain the backup note first.",
+        label: bi("C. Read the backup note", "C. 阅读备份便条"),
+        prompt: bi(
+          "Explain the backup note first.",
+          "先解释这张备份便条。",
+        ),
       },
     ],
-    announcement:
-      "Pick one item to inspect.",
+    announcement: bi("Pick one item to inspect.", "请选择一个物品查看。"),
   },
   voice: {
-    tag: "Turning Point 2",
-    title: "Turning Point 2 / Audio Warning",
-    description:
+    tag: bi("Turning Point 2", "转折点2"),
+    title: bi("Turning Point 2 / Audio Warning", "转折点2 / 音频警告"),
+    description: bi(
       "The memo shifts the case toward ECHO's damaged memory.",
+      "这段音频把案件重心转向了ECHO受损的记忆。",
+    ),
     choices: [
       {
-        label: "A. Compare the memo with the door log",
-        prompt:
+        label: bi("A. Compare the memo with the door log", "A. 对比音频与门锁记录"),
+        prompt: bi(
           "Compare the memo with the 03:17 door log.",
+          "把这段音频和03:17的门锁记录进行对比。",
+        ),
       },
       {
-        label: "B. Tell me what part of your memory feels wrong",
-        prompt:
+        label: bi("B. Ask what part of ECHO's memory feels wrong", "B. 询问ECHO哪部分记忆出了问题"),
+        prompt: bi(
           "What part of your memory feels altered?",
+          "你的哪一部分记忆感觉被篡改了？",
+        ),
       },
       {
-        label: "C. Give me the raw metadata",
-        prompt:
+        label: bi("C. Ask for raw metadata", "C. 查看原始元数据"),
+        prompt: bi(
           "Give me the raw metadata behind the damaged memo.",
+          "把这段损坏音频背后的原始元数据给我。",
+        ),
       },
     ],
-    announcement:
+    announcement: bi(
       "Pick how you want to test ECHO's memory.",
+      "请选择你要如何检验ECHO的记忆。",
+    ),
   },
   archive: {
-    tag: "Turning Point 3",
-    title: "Final Choice",
-    description:
+    tag: bi("Turning Point 3", "转折点3"),
+    title: bi("Final Choice", "最终选择"),
+    description: bi(
       "You are not choosing the killer. You are choosing what survives.",
+      "你不是在选择凶手，而是在选择什么应该被保留下来。",
+    ),
     choices: [
       {
-        label: "A. Keep the raw evidence only",
-        prompt: "Preserve only the raw evidence that still looks trustworthy.",
+        label: bi("A. Keep the raw evidence only", "A. 只保留原始证据"),
+        prompt: bi(
+          "Preserve only the raw evidence that still looks trustworthy.",
+          "只保留那些仍然看起来可信的原始证据。",
+        ),
       },
       {
-        label: "B. Keep the raw evidence and your damaged log",
-        prompt: "Preserve the raw evidence and your damaged archive together.",
+        label: bi(
+          "B. Keep the raw evidence and ECHO's damaged log",
+          "B. 保留原始证据和ECHO受损的日志",
+        ),
+        prompt: bi(
+          "Preserve the raw evidence and your damaged archive together.",
+          "把原始证据和你受损的档案一起保留下来。",
+        ),
       },
       {
-        label: "C. Leave the killer unresolved",
-        prompt: "Leave the killer unresolved. What does this case say about trusting AI memory?",
+        label: bi("C. Leave the killer unresolved", "C. 保留未解结局"),
+        prompt: bi(
+          "Leave the killer unresolved. What does this case say about trusting AI memory?",
+          "让凶手保持未知。这个案件说明了我们该如何看待对AI记忆的信任？",
+        ),
       },
     ],
-    announcement:
+    announcement: bi(
       "Pick what should survive this case.",
+      "请选择这个案件最后应当保留什么。",
+    ),
   },
 };
 
-const introMessage =
-  "You are trapped in room 614 with a bloodstained key and an encrypted audio file. Your memory is intact. The record is not.";
+const introMessage = bilingualText(
+  bi(
+    "You are trapped in room 614 with a bloodstained key and an encrypted audio file. Your memory is intact. The record is not.",
+    "你被困在614房间里，面前有一把带血的钥匙和一段加密音频。你的记忆是完整的，出问题的是记录本身。",
+  ),
+);
 
 let state = createInitialState();
 let proxyHealth = {
@@ -377,11 +514,26 @@ function buildLayout() {
   sidebarHeader.class("sidebar-header");
   sidebarHeader.parent(sidebar);
 
-  createP("Room 614").class("eyebrow").parent(sidebarHeader);
-  createElement("h1", "ECHO Casefile").parent(sidebarHeader);
-  createP("Ask directly. Inspect evidence. Move clue by clue.")
-    .class("sidebar-copy")
-    .parent(sidebarHeader);
+  const roomEyebrow = createP("");
+  roomEyebrow.class("eyebrow");
+  roomEyebrow.html(bilingualInline(bi("Room 614", "614房间")));
+  roomEyebrow.parent(sidebarHeader);
+
+  const titleEl = createElement("h1", "");
+  titleEl.html(bilingualBlock(bi("ECHO Casefile", "ECHO案卷")));
+  titleEl.parent(sidebarHeader);
+
+  const sidebarCopyEl = createP("");
+  sidebarCopyEl.class("sidebar-copy");
+  sidebarCopyEl.html(
+    bilingualBlock(
+      bi(
+        "Ask directly. Inspect evidence. Move clue by clue.",
+        "直接提问。检查证据。一步一步推进。",
+      ),
+    ),
+  );
+  sidebarCopyEl.parent(sidebarHeader);
 
   const sceneCard = createDiv();
   sceneCard.class("scene-card");
@@ -390,8 +542,13 @@ function buildLayout() {
 
   const sceneCopy = createDiv();
   sceneCopy.parent(sceneCard);
-  createP("Scene").class("eyebrow").parent(sceneCopy);
-  sceneLabelEl = createElement("h2", "Room 614");
+  const sceneEyebrow = createP("");
+  sceneEyebrow.class("eyebrow");
+  sceneEyebrow.html(bilingualInline(bi("Scene", "场景")));
+  sceneEyebrow.parent(sceneCopy);
+
+  sceneLabelEl = createElement("h2", "");
+  sceneLabelEl.html(bilingualBlock(bi("Room 614", "614房间")));
   sceneLabelEl.parent(sceneCopy);
   sceneSummaryEl = createP("");
   sceneSummaryEl.class("scene-summary");
@@ -404,8 +561,11 @@ function buildLayout() {
   const sectionHead = createDiv();
   sectionHead.class("section-head");
   sectionHead.parent(sidebarSection);
-  createElement("h2", "Evidence").parent(sectionHead);
-  evidenceCountEl = createSpan("0 items");
+  const evidenceTitle = createElement("h2", "");
+  evidenceTitle.html(bilingualBlock(bi("Evidence", "证据")));
+  evidenceTitle.parent(sectionHead);
+
+  evidenceCountEl = createSpan("0 items / 0项");
   evidenceCountEl.class("count-pill");
   evidenceCountEl.parent(sectionHead);
 
@@ -423,18 +583,24 @@ function buildLayout() {
 
   const headerCopy = createDiv();
   headerCopy.parent(chatHeader);
-  createP("Live Channel").class("eyebrow").parent(headerCopy);
-  createElement("h2", "Talk to ECHO").parent(headerCopy);
+  const channelEyebrow = createP("");
+  channelEyebrow.class("eyebrow");
+  channelEyebrow.html(bilingualInline(bi("Live Channel", "实时通道")));
+  channelEyebrow.parent(headerCopy);
+
+  const chatTitle = createElement("h2", "");
+  chatTitle.html(bilingualBlock(bi("Talk to ECHO", "与ECHO对话")));
+  chatTitle.parent(headerCopy);
 
   const headerActions = createDiv();
   headerActions.class("header-actions");
   headerActions.parent(chatHeader);
 
-  statusBadgeEl = createSpan("Connecting...");
+  statusBadgeEl = createSpan("Connecting... / 正在连接...");
   statusBadgeEl.class("badge warning");
   statusBadgeEl.parent(headerActions);
 
-  const resetButton = createButton("Reset");
+  const resetButton = createButton("Reset / 重置");
   resetButton.class("reset-button");
   resetButton.parent(headerActions);
   resetButton.mousePressed(() => {
@@ -451,7 +617,7 @@ function buildLayout() {
   decisionPanelEl = createDiv();
   decisionPanelEl.class("decision-panel");
   decisionPanelEl.parent(chatShell);
-  decisionEyebrowEl = createP("Choice");
+  decisionEyebrowEl = createP("Choice / 选择");
   decisionEyebrowEl.class("eyebrow");
   decisionEyebrowEl.parent(decisionPanelEl);
   decisionTitleEl = createElement("h3", "");
@@ -466,7 +632,7 @@ function buildLayout() {
   suggestionsBarEl = createDiv();
   suggestionsBarEl.class("suggestions-bar");
   suggestionsBarEl.parent(chatShell);
-  createP("Quick Prompts").class("eyebrow").parent(suggestionsBarEl);
+  createP("Quick Prompts / 快速提示").class("eyebrow").parent(suggestionsBarEl);
   suggestionListEl = createDiv();
   suggestionListEl.class("suggestion-list");
   suggestionListEl.parent(suggestionsBarEl);
@@ -481,7 +647,7 @@ function buildLayout() {
   inputEl.attribute("placeholder", DEFAULT_COMPOSER_PLACEHOLDER);
   inputEl.parent(composerEl);
 
-  sendButtonEl = createButton("Send");
+  sendButtonEl = createButton("Send / 发送");
   sendButtonEl.class("send-button");
   sendButtonEl.parent(composerEl);
   sendButtonEl.attribute("type", "submit");
@@ -509,8 +675,8 @@ function renderAll() {
 
 function renderScene() {
   const currentStage = stages[state.stageIndex];
-  sceneLabelEl.html(currentStage.label);
-  sceneSummaryEl.html(currentStage.summary);
+  sceneLabelEl.html(bilingualBlock(currentStage.label));
+  sceneSummaryEl.html(bilingualBlock(currentStage.summary));
 }
 
 function renderEvidence() {
@@ -519,7 +685,7 @@ function renderEvidence() {
   );
   const locked = state.busy || state.waitingForDecision;
 
-  evidenceCountEl.html(`${unlockedItems.length} items`);
+  evidenceCountEl.html(`${unlockedItems.length} items / ${unlockedItems.length}项`);
   evidenceListEl.html("");
 
   unlockedItems.forEach((item) => {
@@ -527,11 +693,11 @@ function renderEvidence() {
     button.class("evidence-card");
     button.parent(evidenceListEl);
     button.html(`
-      <img src="${item.image}" alt="${escapeHtml(item.title)}" />
+      <img src="${item.image}" alt="${escapeHtml(plainText(item.title))}" />
       <div class="evidence-copy">
-        <span class="evidence-tag">Inspect</span>
-        <h3>${escapeHtml(item.title)}</h3>
-        <p>${escapeHtml(item.description)}</p>
+        <span class="evidence-tag">${bilingualInline(bi("Inspect", "查看"))}</span>
+        <h3>${bilingualBlock(item.title)}</h3>
+        <p>${bilingualBlock(item.description)}</p>
       </div>
     `);
     if (locked) {
@@ -541,7 +707,7 @@ function renderEvidence() {
       if (locked) {
         return;
       }
-      submitMessage(item.prompt);
+      submitMessage(bilingualText(item.prompt));
     });
   });
 }
@@ -549,11 +715,14 @@ function renderEvidence() {
 function renderTranscript() {
   const html = state.messages
     .map((message) => {
-      const label = message.role === "assistant" ? "ECHO" : "YOU";
+      const label =
+        message.role === "assistant"
+          ? bilingualInline(bi("ECHO", "ECHO"))
+          : bilingualInline(bi("YOU", "你"));
       const body =
         message.role === "assistant"
           ? formatAssistantText(message.content)
-          : `<p>${escapeHtml(message.content)}</p>`;
+          : formatChatText(message.content);
 
       return `
         <article class="message ${message.role}">
@@ -586,9 +755,9 @@ function renderDecisionPanel() {
   }
 
   decisionPanelEl.removeClass("hidden");
-  decisionEyebrowEl.html(decisionSet.tag || "Turning Point");
-  decisionTitleEl.html(decisionSet.title);
-  decisionDescriptionEl.html(decisionSet.description);
+  decisionEyebrowEl.html(bilingualInline(decisionSet.tag || bi("Choice", "选择")));
+  decisionTitleEl.html(bilingualBlock(decisionSet.title));
+  decisionDescriptionEl.html(bilingualBlock(decisionSet.description));
   decisionListEl.html("");
 
   decisionSet.choices.forEach((choice) => {
@@ -596,8 +765,8 @@ function renderDecisionPanel() {
     button.class("decision-button");
     button.parent(decisionListEl);
     button.html(`
-      <span class="decision-label">${escapeHtml(choice.label)}</span>
-      <span class="decision-copy">${escapeHtml(choice.prompt)}</span>
+      <span class="decision-label">${bilingualInline(choice.label)}</span>
+      <span class="decision-copy">${bilingualBlock(choice.prompt)}</span>
     `);
     if (state.busy) {
       button.attribute("disabled", "true");
@@ -606,7 +775,7 @@ function renderDecisionPanel() {
       if (state.busy) {
         return;
       }
-      submitMessage(choice.prompt, { isDecision: true });
+      submitMessage(bilingualText(choice.prompt), { isDecision: true });
     });
   });
 }
@@ -626,7 +795,7 @@ function renderInteractionMode() {
   if (lockedForChoice) {
     inputEl.attribute(
       "placeholder",
-      "Pick one option above to continue...",
+      "Pick one option above to continue... / 请选择上方一个选项继续...",
     );
   } else {
     inputEl.attribute("placeholder", DEFAULT_COMPOSER_PLACEHOLDER);
@@ -635,34 +804,38 @@ function renderInteractionMode() {
 
 function renderStatus() {
   if (state.busy) {
-    statusBadgeEl.html("Thinking...");
+    statusBadgeEl.html("Thinking... / 正在思考...");
     statusBadgeEl.class("badge busy");
     return;
   }
 
   if (state.waitingForDecision) {
-    statusBadgeEl.html("Choice Required");
+    statusBadgeEl.html("Choice Required / 必须选择");
     statusBadgeEl.class("badge warning");
     return;
   }
 
   if (proxyHealth.reachable && proxyHealth.configured) {
-    statusBadgeEl.html("ECHO Online");
+    statusBadgeEl.html("ECHO Online / ECHO在线");
     statusBadgeEl.class("badge online");
     return;
   }
 
   if (proxyHealth.reachable) {
-    statusBadgeEl.html("Setup Needed");
+    statusBadgeEl.html("Setup Needed / 需要配置");
     statusBadgeEl.class("badge offline");
     return;
   }
 
-  statusBadgeEl.html("ECHO Offline");
+  statusBadgeEl.html("ECHO Offline / ECHO离线");
   statusBadgeEl.class("badge offline");
 }
 
 function formatAssistantText(text) {
+  return formatChatText(text);
+}
+
+function formatChatText(text) {
   const blocks = text.trim().split(/\n{2,}/).filter(Boolean);
 
   return blocks
@@ -688,6 +861,22 @@ function formatAssistantText(text) {
             `<li>${escapeHtml(line.replace(/^\d+\.\s/, ""))}</li>`,
           )
           .join("")}</ol>`;
+      }
+
+      if (lines.length >= 2) {
+        const paired = [];
+        for (let i = 0; i < lines.length; i += 2) {
+          const en = lines[i];
+          const zh = lines[i + 1];
+          if (zh) {
+            paired.push(
+              `<span class="bi-line bi-en">${escapeHtml(en)}</span><span class="bi-line bi-zh">${escapeHtml(zh)}</span>`,
+            );
+          } else {
+            paired.push(`<span class="bi-line bi-en">${escapeHtml(en)}</span>`);
+          }
+        }
+        return `<p>${paired.join("")}</p>`;
       }
 
       return `<p>${lines.map((line) => escapeHtml(line)).join("<br>")}</p>`;
@@ -724,21 +913,21 @@ function advanceStage(nextIndex) {
 
 function buildStoryState() {
   return {
-    stage: stages[state.stageIndex].label,
-    scene_summary: stages[state.stageIndex].summary,
+    stage: plainText(stages[state.stageIndex].label),
+    scene_summary: plainText(stages[state.stageIndex].summary),
     last_reveal: state.lastReveal,
     available_evidence: Array.from(state.unlockedEvidence).map((id) => {
       const item = evidenceCatalog[id];
       return {
         id: item.id,
-        title: item.title,
-        description: item.description,
+        title: plainText(item.title),
+        description: plainText(item.description),
       };
     }),
     interaction_mode: state.waitingForDecision ? "choice_required" : "free_input",
     free_turns_until_choice: Math.max(0, FREE_TURNS_PER_STAGE - state.freeTurnsInStage),
     choice_title: state.waitingForDecision
-      ? decisionSets[stages[state.stageIndex].id]?.title || ""
+      ? plainText(decisionSets[stages[state.stageIndex].id]?.title || "")
       : "",
     interaction_goal:
       "Keep the experience simple, answer directly, and let the story progress in paced beats controlled by the interface.",
@@ -768,17 +957,17 @@ function buildStateMessage() {
 
 function buildForcedChoicePrompt(decisionSet) {
   const options = decisionSet.choices
-    .map((choice) => `- ${choice.label}`)
+    .map((choice) => `- ${choice.label.en}\n- ${choice.label.zh}`)
     .join("\n");
 
   return [
-    decisionSet.title,
+    bilingualText(decisionSet.title),
     "",
-    decisionSet.announcement || decisionSet.description,
+    bilingualText(decisionSet.announcement || decisionSet.description),
     "",
     options,
     "",
-    "Pick one.",
+    "Pick one.\n请选择一个。",
   ].join("\n");
 }
 
@@ -790,6 +979,7 @@ function stylizeCorruptedReply(text) {
   if (state.stageIndex === 3) {
     return [
       "Wait. One line does not match.",
+      "等等。有一行对不上。",
       "",
       text,
     ].join("\n");
@@ -802,6 +992,7 @@ function stylizeCorruptedReply(text) {
 
   return [
     "My archive is damaged. I can still help.",
+    "我的档案受损了，但我还能继续协助。",
     "",
     softened,
   ].join("\n");
@@ -890,7 +1081,7 @@ async function requestAssistantReply() {
     return requestAssistantViaProxy();
   }
 
-  throw new Error("The live ECHO service is not reachable right now.");
+  throw new Error("The live ECHO service is not reachable right now. / 目前无法连接到实时ECHO服务。");
 }
 
 async function requestAssistantViaProxy() {
@@ -913,7 +1104,7 @@ async function requestAssistantViaProxy() {
   }
 
   if (!response.ok) {
-    throw new Error(payload.error || "Unable to reach the OpenAI proxy.");
+    throw new Error(payload.error || "Unable to reach the OpenAI proxy. / 无法连接到OpenAI代理。");
   }
 
   return payload.text;
@@ -922,11 +1113,14 @@ async function requestAssistantViaProxy() {
 function buildConnectionError(error) {
   return [
     "I cannot reach ECHO right now.",
+    "我现在无法连接到ECHO。",
     "",
     error.message,
     "",
     "The chat server is not responding yet.",
+    "聊天服务器暂时没有响应。",
     "Try again in a moment.",
+    "请稍后再试。",
   ].join("\n");
 }
 

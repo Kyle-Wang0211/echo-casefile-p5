@@ -39,6 +39,31 @@ h3 {
   font-weight: 600;
 }
 
+.bi-line {
+  display: block;
+}
+
+.bi-zh {
+  margin-top: 4px;
+  color: var(--muted);
+  font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", "Heiti SC", sans-serif;
+  font-size: 0.92em;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.bi-divider {
+  opacity: 0.55;
+}
+
+h1 .bi-zh,
+h2 .bi-zh,
+h3 .bi-zh {
+  margin-top: 6px;
+  font-size: 0.56em;
+  font-weight: 500;
+}
+
 .app-shell {
   position: relative;
   z-index: 1;
@@ -76,6 +101,16 @@ h3 {
   font-size: 0.76rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+}
+
+.eyebrow .bi-zh,
+.decision-label .bi-zh,
+.evidence-tag .bi-zh,
+.message-label .bi-zh,
+.count-pill .bi-zh,
+.badge .bi-zh {
+  color: inherit;
+  font-size: 1em;
 }
 
 .sidebar-copy,
@@ -326,6 +361,10 @@ h3 {
   border: 1px solid var(--line);
   background: var(--panel-strong);
   line-height: 1.65;
+}
+
+.message-body .bi-zh {
+  margin-top: 6px;
 }
 
 .message.user .message-body {
