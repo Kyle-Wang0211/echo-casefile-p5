@@ -733,8 +733,8 @@ function renderChoiceMessage(message) {
   if (typeof message.selectedChoiceIndex === "number") {
     const choice = decisionSet.choices[message.selectedChoiceIndex];
     return `
-      <article class="message assistant choice-turn">
-        <div class="message-label">${bilingualInline(bi("Selected", "已选"))}</div>
+      <article class="message user choice-turn choice-selected">
+        <div class="message-label">${bilingualInline(bi("YOU", "你"))}</div>
         <div class="message-body inline-choice-selected">
           <p>${bilingualBlock(choice.prompt)}</p>
         </div>
