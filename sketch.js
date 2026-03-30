@@ -1,4 +1,4 @@
-const FREE_TURNS_PER_STAGE = 2;
+const FREE_TURNS_PER_STAGE = 1;
 const DEFAULT_COMPOSER_PLACEHOLDER = "Type your message... / 输入消息...";
 
 function bi(en, zh) {
@@ -454,8 +454,10 @@ function createInitialState() {
     waitingForDecision: false,
     completed: false,
     busy: false,
+    nextMessageId: 1,
     messages: [
       {
+        id: 0,
         role: "assistant",
         content: introMessage,
       },
@@ -714,7 +716,12 @@ function renderEvidence() {
 
 function renderTranscript() {
   const html = state.messages
+    .filter((message) => !message.hidden)
     .map((message) => {
+      if (message.type === "choice") {
+        return renderChoiceMessage(message);
+      }
+
       const label =
         message.role === "assistant"
           ? bilingualInline(bi("ECHO", "ECHO"))
@@ -734,7 +741,69 @@ function renderTranscript() {
     .join("");
 
   transcriptEl.html(html);
+  bindInlineChoiceButtons();
   transcriptEl.elt.scrollTop = transcriptEl.elt.scrollHeight;
+}
+
+function renderChoiceMessage(message) {
+  const decisionSet = decisionSets[message.decisionKey];
+  if (!decisionSet) {
+    return "";
+  }
+
+  if (typeof message.selectedChoiceIndex === "number") {
+    const choice = decisionSet.choices[message.selectedChoiceIndex];
+    return `
+      <article class="message assistant choice-turn">
+        <div class="message-label">${bilingualInline(bi("Selected", "已选"))}</div>
+        <div class="message-body inline-choice-selected">
+          <p>${bilingualBlock(choice.prompt)}</p>
+        </div>
+      </article>
+    `;
+  }
+
+  const buttons = decisionSet.choices
+    .map(
+      (choice, index) => `
+        <button
+          type="button"
+          class="decision-button inline-choice-button"
+          data-choice-message-id="${message.id}"
+          data-choice-index="${index}"
+          ${state.busy ? "disabled" : ""}
+        >
+          <span class="decision-label">${bilingualInline(choice.label)}</span>
+          <span class="decision-copy">${bilingualBlock(choice.prompt)}</span>
+        </button>
+      `,
+    )
+    .join("");
+
+  return `
+    <article class="message assistant choice-turn">
+      <div class="message-label">${bilingualInline(decisionSet.tag || bi("Choice", "选择"))}</div>
+      <div class="message-body inline-choice-card">
+        <h3 class="inline-choice-title">${bilingualBlock(decisionSet.title)}</h3>
+        <p class="inline-choice-description">${bilingualBlock(decisionSet.description)}</p>
+        <div class="inline-choice-list">${buttons}</div>
+      </div>
+    </article>
+  `;
+}
+
+function bindInlineChoiceButtons() {
+  transcriptEl.elt.querySelectorAll(".inline-choice-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (state.busy) {
+        return;
+      }
+      submitDecisionChoice(
+        Number(button.dataset.choiceMessageId),
+        Number(button.dataset.choiceIndex),
+      );
+    });
+  });
 }
 
 function renderSuggestions() {
@@ -743,41 +812,11 @@ function renderSuggestions() {
 }
 
 function renderDecisionPanel() {
-  const decisionSet = getDecisionSet();
-
-  if (!decisionSet) {
-    decisionPanelEl.addClass("hidden");
-    decisionEyebrowEl.html("");
-    decisionTitleEl.html("");
-    decisionDescriptionEl.html("");
-    decisionListEl.html("");
-    return;
-  }
-
-  decisionPanelEl.removeClass("hidden");
-  decisionEyebrowEl.html(bilingualInline(decisionSet.tag || bi("Choice", "选择")));
-  decisionTitleEl.html(bilingualBlock(decisionSet.title));
-  decisionDescriptionEl.html(bilingualBlock(decisionSet.description));
+  decisionPanelEl.addClass("hidden");
+  decisionEyebrowEl.html("");
+  decisionTitleEl.html("");
+  decisionDescriptionEl.html("");
   decisionListEl.html("");
-
-  decisionSet.choices.forEach((choice) => {
-    const button = createButton("");
-    button.class("decision-button");
-    button.parent(decisionListEl);
-    button.html(`
-      <span class="decision-label">${bilingualInline(choice.label)}</span>
-      <span class="decision-copy">${bilingualBlock(choice.prompt)}</span>
-    `);
-    if (state.busy) {
-      button.attribute("disabled", "true");
-    }
-    button.mousePressed(() => {
-      if (state.busy) {
-        return;
-      }
-      submitMessage(bilingualText(choice.prompt), { isDecision: true });
-    });
-  });
 }
 
 function renderInteractionMode() {
@@ -795,7 +834,7 @@ function renderInteractionMode() {
   if (lockedForChoice) {
     inputEl.attribute(
       "placeholder",
-      "Pick one option above to continue... / 请选择上方一个选项继续...",
+      "Pick one option in chat to continue... / 请在聊天中选择一个选项继续...",
     );
   } else {
     inputEl.attribute("placeholder", DEFAULT_COMPOSER_PLACEHOLDER);
@@ -955,22 +994,6 @@ function buildStateMessage() {
   ].join("\n");
 }
 
-function buildForcedChoicePrompt(decisionSet) {
-  const options = decisionSet.choices
-    .map((choice) => `- ${choice.label.en}\n- ${choice.label.zh}`)
-    .join("\n");
-
-  return [
-    bilingualText(decisionSet.title),
-    "",
-    bilingualText(decisionSet.announcement || decisionSet.description),
-    "",
-    options,
-    "",
-    "Pick one.\n请选择一个。",
-  ].join("\n");
-}
-
 function stylizeCorruptedReply(text) {
   if (state.stageIndex < 3) {
     return text;
@@ -1003,8 +1026,8 @@ function maybeTriggerForcedChoice() {
     return;
   }
 
-  const decisionSet = decisionSets[stages[state.stageIndex].id];
-  if (!decisionSet) {
+  const decisionKey = stages[state.stageIndex].id;
+  if (!decisionSets[decisionKey]) {
     return;
   }
 
@@ -1014,8 +1037,11 @@ function maybeTriggerForcedChoice() {
 
   state.waitingForDecision = true;
   state.messages.push({
+    id: state.nextMessageId++,
     role: "assistant",
-    content: buildForcedChoicePrompt(decisionSet),
+    type: "choice",
+    decisionKey,
+    selectedChoiceIndex: null,
   });
 }
 
@@ -1031,42 +1057,88 @@ function advanceAfterDecision() {
   state.completed = true;
 }
 
-async function submitMessage(rawText, options = {}) {
-  const { isDecision = false } = options;
+async function submitMessage(rawText) {
   const text = rawText.trim();
   if (!text || state.busy) {
     return;
   }
 
-  if (state.waitingForDecision && !isDecision) {
+  if (state.waitingForDecision) {
     return;
   }
 
   state.messages.push({
+    id: state.nextMessageId++,
     role: "user",
     content: text,
   });
 
   state.turns += 1;
-  if (isDecision) {
-    advanceAfterDecision();
-  } else {
-    state.freeTurnsInStage += 1;
-  }
+  state.freeTurnsInStage += 1;
   state.busy = true;
   renderAll();
 
   try {
     const assistantReply = await requestAssistantReply();
     state.messages.push({
+      id: state.nextMessageId++,
       role: "assistant",
       content: stylizeCorruptedReply(assistantReply),
     });
-    if (!isDecision) {
-      maybeTriggerForcedChoice();
-    }
+    maybeTriggerForcedChoice();
   } catch (error) {
     state.messages.push({
+      id: state.nextMessageId++,
+      role: "assistant",
+      content: buildConnectionError(error),
+    });
+  } finally {
+    state.busy = false;
+    renderAll();
+  }
+}
+
+async function submitDecisionChoice(messageId, choiceIndex) {
+  if (state.busy || !state.waitingForDecision) {
+    return;
+  }
+
+  const choiceMessage = state.messages.find(
+    (message) => message.id === messageId && message.type === "choice",
+  );
+  if (!choiceMessage || typeof choiceMessage.selectedChoiceIndex === "number") {
+    return;
+  }
+
+  const decisionSet = decisionSets[choiceMessage.decisionKey];
+  const choice = decisionSet?.choices?.[choiceIndex];
+  if (!choice) {
+    return;
+  }
+
+  choiceMessage.selectedChoiceIndex = choiceIndex;
+  state.messages.push({
+    id: state.nextMessageId++,
+    role: "user",
+    content: bilingualText(choice.prompt),
+    hidden: true,
+  });
+
+  state.turns += 1;
+  advanceAfterDecision();
+  state.busy = true;
+  renderAll();
+
+  try {
+    const assistantReply = await requestAssistantReply();
+    state.messages.push({
+      id: state.nextMessageId++,
+      role: "assistant",
+      content: stylizeCorruptedReply(assistantReply),
+    });
+  } catch (error) {
+    state.messages.push({
+      id: state.nextMessageId++,
       role: "assistant",
       content: buildConnectionError(error),
     });

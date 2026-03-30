@@ -2,9 +2,10 @@
 
 ## Core Rule
 
-- The player gets 2 free chat turns in each stage.
-- Then the interface forces 1 visible A/B/C choice.
+- The player gets 1 short free exchange in each stage.
+- Then the interface inserts 1 visible A/B/C choice directly into the chat transcript.
 - The player cannot keep typing until they choose.
+- After selection, the choice node collapses into the chosen line and the story moves on.
 - ECHO answers directly and keeps the case moving.
 
 ## Final Story Line
@@ -12,10 +13,10 @@
 1. Start in room 614  
    The player sees the room, a bloodstained key, and an encrypted audio file.
 
-2. Free chat x2  
+2. Free chat x1  
    The player can ask what to inspect, check the room, inspect the key, or open the audio.
 
-3. Forced Choice 1  
+3. In-chat Choice 1  
    - A. Inspect the bloodstained key
    - B. Open the encrypted audio
    - C. Search the room
@@ -23,10 +24,10 @@
 4. Door log reveal  
    ECHO finds a hidden lock record. The room was locked from outside at 03:17.
 
-5. Free chat x2  
+5. Free chat x1  
    The player can ask about the door log, the time stamp, the key, or why ECHO missed the record.
 
-6. Forced Choice 2  
+6. In-chat Choice 2  
    - A. Dig into the raw door log
    - B. Follow the key
    - C. Ask why ECHO missed it
@@ -34,10 +35,10 @@
 7. Hidden evidence package  
    The key leads to a hidden package with an itinerary, an erased SIM card, and a backup note.
 
-8. Free chat x2  
+8. Free chat x1  
    The player can ask what each item is or which one matters most.
 
-9. Forced Choice 3  
+9. In-chat Choice 3  
    - A. Read the itinerary
    - B. Inspect the erased SIM
    - C. Read the backup note
@@ -45,19 +46,19 @@
 10. Corrupted audio warning  
     The recovered memo warns that the official record and ECHO's memory may be out of sync.
 
-11. Free chat x2  
-    The player can compare the memo to the door log, ask what ECHO forgot, or ask for raw metadata.
+11. Free chat x1  
+   The player can compare the memo to the door log, ask what ECHO forgot, or ask for raw metadata.
 
-12. Forced Choice 4  
-    - A. Compare the memo with the door log
-    - B. Ask what part of ECHO's memory feels wrong
-    - C. Ask for raw metadata
+12. In-chat Choice 4  
+   - A. Compare the memo with the door log
+   - B. Ask what part of ECHO's memory feels wrong
+   - C. Ask for raw metadata
 
 13. ECHO memory drift  
     ECHO starts correcting itself. Its archive no longer matches itself.
 
-14. Free chat x2  
-    The player can ask what still feels trustworthy and what can still be preserved.
+14. Free chat x1  
+   The player can ask what still feels trustworthy and what can still be preserved.
 
 15. Final Choice  
     - A. Keep only the raw evidence
@@ -71,39 +72,39 @@
 
 ```mermaid
 flowchart TD
-    A["Start: room, key, audio"] --> B["Free chat x2"]
-    B --> C{"Choice 1"}
+    A["Start: room, key, audio"] --> B["Free chat x1"]
+    B --> C{"In-chat choice 1"}
     C --> C1["Inspect key"]
     C --> C2["Open audio"]
     C --> C3["Search room"]
     C1 --> D["Door log reveal"]
     C2 --> D
     C3 --> D
-    D --> E["Free chat x2"]
-    E --> F{"Choice 2"}
+    D --> E["Free chat x1"]
+    E --> F{"In-chat choice 2"}
     F --> F1["Dig into door log"]
     F --> F2["Follow key"]
     F --> F3["Question ECHO"]
     F1 --> G["Hidden package"]
     F2 --> G
     F3 --> G
-    G --> H["Free chat x2"]
-    H --> I{"Choice 3"}
+    G --> H["Free chat x1"]
+    H --> I{"In-chat choice 3"}
     I --> I1["Read itinerary"]
     I --> I2["Inspect SIM"]
     I --> I3["Read backup note"]
     I1 --> J["Audio warning"]
     I2 --> J
     I3 --> J
-    J --> K["Free chat x2"]
-    K --> L{"Choice 4"}
+    J --> K["Free chat x1"]
+    K --> L{"In-chat choice 4"}
     L --> L1["Compare memo and log"]
     L --> L2["Ask what ECHO forgot"]
     L --> L3["Ask for metadata"]
     L1 --> M["ECHO memory drift"]
     L2 --> M
     L3 --> M
-    M --> N["Free chat x2"]
+    M --> N["Free chat x1"]
     N --> O{"Final choice"}
     O --> O1["Keep raw evidence"]
     O --> O2["Keep raw evidence + AI log"]

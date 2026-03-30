@@ -371,6 +371,10 @@ h3 .bi-zh {
   background: rgba(51, 90, 119, 0.08);
 }
 
+.message.choice-turn {
+  max-width: 880px;
+}
+
 .message-body p,
 .message-body ul,
 .message-body ol {
@@ -436,6 +440,35 @@ h3 .bi-zh {
 .decision-copy {
   color: var(--ink);
   line-height: 1.5;
+}
+
+.inline-choice-card,
+.inline-choice-selected {
+  display: grid;
+  gap: 12px;
+}
+
+.inline-choice-title {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.inline-choice-title .bi-zh {
+  margin-top: 4px;
+}
+
+.inline-choice-description {
+  margin: 0;
+  color: var(--muted);
+}
+
+.inline-choice-list {
+  display: grid;
+  gap: 10px;
+}
+
+.inline-choice-selected {
+  gap: 0;
 }
 
 .evidence-card:disabled,
