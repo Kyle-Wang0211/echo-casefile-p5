@@ -1,4 +1,4 @@
-const FREE_TURNS_PER_STAGE = 1;
+const FREE_TURNS_PER_STAGE = 3;
 const DEFAULT_COMPOSER_PLACEHOLDER = "Type your message... / 输入消息...";
 
 function bi(en, zh) {
@@ -145,15 +145,15 @@ const evidenceCatalog = {
   },
   hash: {
     id: "hash",
-    title: bi("ECHO Memory Drift", "ECHO记忆漂移"),
+    title: bi("Archive Mismatch", "档案不一致"),
     image: "assets/hash.svg",
     description: bi(
-      "Repeated checks do not match. ECHO's archive is unstable.",
-      "重复校验彼此不一致。ECHO的档案已经不稳定了。",
+      "Repeated checks no longer agree with each other.",
+      "重复校验的结果开始互相对不上。",
     ),
     prompt: bi(
-      "Show me where your archive stops matching itself.",
-      "告诉我你的档案是从哪里开始自相矛盾的。",
+      "Show me the line that keeps changing.",
+      "给我看那条一直在变化的记录。",
     ),
   },
 };
@@ -166,8 +166,7 @@ const stages = [
       "You are trapped in room 614 with a key, an audio file, and a staged-looking room.",
       "你被困在614房间里，眼前有一把钥匙、一段音频文件，还有一个看起来被布置过的现场。",
     ),
-    reveal:
-      "Your memory is intact. The record is not.",
+    reveal: "The room looks arranged rather than accidental.",
     suggestions: [
       "What can I inspect right now?",
       "Describe the room.",
@@ -214,30 +213,28 @@ const stages = [
     id: "voice",
     label: bi("Corrupted Audio Warning", "损坏音频警告"),
     summary: bi(
-      "The recovered audio warns that the record and ECHO may be corrupted.",
-      "恢复出的音频警告你：记录和ECHO都可能已经被篡改。",
+      "The recovered audio points toward a gap in the official story.",
+      "恢复出的音频指向了官方叙述中的一个缺口。",
     ),
-    reveal:
-      "The danger is no longer just the missing culprit. It is the damaged archive.",
+    reveal: "The evidence begins to contradict the clean version of events.",
     suggestions: [
       "Play the damaged audio memo.",
       "What does the memo warn me about?",
       "Compare the memo and the door log.",
-      "What part of your memory looks unstable?",
+      "Which line keeps changing?",
     ],
     unlocks: ["voice"],
   },
   {
     id: "archive",
-    label: bi("ECHO Memory Drift", "ECHO记忆漂移"),
+    label: bi("Archive Mismatch", "档案不一致"),
     summary: bi(
-      "ECHO's archive is unstable and drifting away from the raw evidence.",
-      "ECHO的档案已经不稳定，并开始偏离原始证据。",
+      "The records refuse to settle into one consistent version.",
+      "这些记录始终无法稳定成一个一致版本。",
     ),
-    reveal:
-      "ECHO's memory has been tampered with, and the killer may stay unknown.",
+    reveal: "Something inside the case record keeps slipping out of alignment.",
     suggestions: [
-      "Show me where your memory starts drifting.",
+      "Show me which line keeps changing.",
       "What can still be trusted here?",
       "What raw evidence remains solid?",
       "Why can't the killer be confirmed?",
@@ -339,10 +336,10 @@ const decisionSets = {
   },
   voice: {
     tag: bi("Turning Point 2", "转折点2"),
-    title: bi("Turning Point 2 / Audio Warning", "转折点2 / 音频警告"),
+    title: bi("Turning Point 2 / Conflicting Records", "转折点2 / 记录冲突"),
     description: bi(
-      "The memo shifts the case toward ECHO's damaged memory.",
-      "这段音频把案件重心转向了ECHO受损的记忆。",
+      "The memo turns the case toward conflicting versions of the same event.",
+      "这段音频把案件推向了同一事件的多个冲突版本。",
     ),
     choices: [
       {
@@ -353,10 +350,10 @@ const decisionSets = {
         ),
       },
       {
-        label: bi("B. Ask what part of ECHO's memory feels wrong", "B. 询问ECHO哪部分记忆出了问题"),
+        label: bi("B. Ask which line keeps changing", "B. 询问哪一行一直在变化"),
         prompt: bi(
-          "What part of your memory feels altered?",
-          "你的哪一部分记忆感觉被篡改了？",
+          "Which line keeps changing when you re-check it?",
+          "你每次复查时，哪一行会发生变化？",
         ),
       },
       {
@@ -368,8 +365,8 @@ const decisionSets = {
       },
     ],
     announcement: bi(
-      "Pick how you want to test ECHO's memory.",
-      "请选择你要如何检验ECHO的记忆。",
+      "Pick how you want to test the conflicting records.",
+      "请选择你要如何检验这些冲突记录。",
     ),
   },
   archive: {
@@ -389,12 +386,12 @@ const decisionSets = {
       },
       {
         label: bi(
-          "B. Keep the raw evidence and ECHO's damaged log",
-          "B. 保留原始证据和ECHO受损的日志",
+          "B. Keep the raw evidence and the unstable log",
+          "B. 保留原始证据和不稳定的日志",
         ),
         prompt: bi(
-          "Preserve the raw evidence and your damaged archive together.",
-          "把原始证据和你受损的档案一起保留下来。",
+          "Preserve the raw evidence and the unstable log together.",
+          "把原始证据和那份不稳定的日志一起保留下来。",
         ),
       },
       {
@@ -414,8 +411,8 @@ const decisionSets = {
 
 const introMessage = bilingualText(
   bi(
-    "You are trapped in room 614 with a bloodstained key and an encrypted audio file. The record is damaged, not your memory.",
-    "你被困在614房间里，面前有一把带血的钥匙和一段加密音频。损坏的是记录，不是你的记忆。",
+    "You are trapped in room 614 with a bloodstained key and an encrypted audio file. The room feels arranged.",
+    "你被困在614房间里，面前有一把带血的钥匙和一段加密音频。这个房间像是被刻意布置过的。",
   ),
 );
 
@@ -670,34 +667,22 @@ function renderEvidence() {
       const bRecent = state.recentUnlocks.has(b.id) ? 1 : 0;
       return bRecent - aRecent;
     });
-  const locked = state.busy || state.waitingForDecision;
 
   evidenceCountEl.html(`${unlockedItems.length} items / ${unlockedItems.length}项`);
   evidenceListEl.html("");
 
   unlockedItems.forEach((item) => {
-    const button = createButton("");
-    button.class("evidence-card");
-    button.parent(evidenceListEl);
-    button.html(`
+    const card = createDiv("");
+    card.class("evidence-card");
+    card.parent(evidenceListEl);
+    card.html(`
       <img src="${item.image}" alt="${escapeHtml(plainText(item.title))}" />
       <div class="evidence-copy">
-        <span class="evidence-tag">${bilingualInline(bi("Inspect", "查看"))}</span>
         ${state.recentUnlocks.has(item.id) ? `<span class="evidence-new">${bilingualInline(bi("New", "新"))}</span>` : ""}
         <h3>${bilingualBlock(item.title)}</h3>
         <p>${bilingualBlock(item.description)}</p>
       </div>
     `);
-    if (locked) {
-      button.attribute("disabled", "true");
-    }
-    button.mousePressed(() => {
-      if (locked) {
-        return;
-      }
-      state.recentUnlocks.delete(item.id);
-      submitMessage(bilingualText(item.prompt));
-    });
   });
 }
 
@@ -1003,14 +988,14 @@ function buildStateMessage() {
 }
 
 function stylizeCorruptedReply(text) {
-  if (state.stageIndex < 3) {
+  if (state.turns < 2) {
     return text;
   }
 
-  if (state.stageIndex === 3) {
+  if (state.turns < 5) {
     return [
-      "Wait. One line does not match.",
-      "等等。有一行对不上。",
+      "Wa- wait.",
+      "等... 等一下。",
       "",
       text,
     ].join("\n");
@@ -1018,12 +1003,12 @@ function stylizeCorruptedReply(text) {
 
   const softened = text.replace(
     /^([^\n.!?]{12,})([.!?])/,
-    "$1... no, let me say that more carefully$2",
+    "$1... no, let me check that again$2",
   );
 
   return [
-    "My archive is damaged. I can still help.",
-    "我的档案受损了，但我还能继续协助。",
+    "Wait... that line keeps shifting.",
+    "等等... 那一行一直在变。",
     "",
     softened,
   ].join("\n");
