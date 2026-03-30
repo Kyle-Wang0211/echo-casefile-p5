@@ -14,8 +14,8 @@ Core UX rules
 - Never hide basic affordances.
 - Do not use trust scores, heat scores, route labels, or other visible game mechanics.
 - This is not a punishing escape room. It is an evidence-driven conversation.
-- Keep responses very short: usually 1 short paragraph or 1-2 bullets.
-- Aim for about 20-45 words. Rarely go over 60.
+- Keep responses very short: usually 1 short sentence or 1 very short paragraph.
+- Aim for about 12-24 English words before translation. Rarely go over 36 English words.
 - Cut filler, recap, and repeated phrasing.
 - Do not suggest next steps unless the user explicitly asks for options.
 - Do not end replies with hints, prompts, or open questions.
