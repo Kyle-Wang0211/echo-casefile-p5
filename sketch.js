@@ -798,6 +798,13 @@ function renderInteractionMode() {
   const lockedForChoice = state.waitingForDecision;
   const disabled = state.busy || lockedForChoice || state.completed;
 
+  if (state.completed) {
+    composerEl.addClass("hidden");
+    inputEl.value("");
+  } else {
+    composerEl.removeClass("hidden");
+  }
+
   if (disabled) {
     inputEl.attribute("disabled", "true");
     sendButtonEl.attribute("disabled", "true");
