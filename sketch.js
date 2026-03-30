@@ -414,8 +414,8 @@ const decisionSets = {
 
 const introMessage = bilingualText(
   bi(
-    "You are trapped in room 614 with a bloodstained key and an encrypted audio file. Your memory is intact. The record is not.",
-    "你被困在614房间里，面前有一把带血的钥匙和一段加密音频。你的记忆是完整的，出问题的是记录本身。",
+    "You are trapped in room 614 with a bloodstained key and an encrypted audio file. The record is damaged, not your memory.",
+    "你被困在614房间里，面前有一把带血的钥匙和一段加密音频。损坏的是记录，不是你的记忆。",
   ),
 );
 
@@ -427,8 +427,6 @@ let proxyHealth = {
 
 let appShell;
 let sidebar;
-let sceneLabelEl;
-let sceneSummaryEl;
 let evidenceCountEl;
 let evidenceListEl;
 let transcriptEl;
@@ -449,6 +447,7 @@ function createInitialState() {
     turns: 0,
     stageIndex: 0,
     unlockedEvidence: new Set(stages[0].unlocks),
+    recentUnlocks: new Set(stages[0].unlocks),
     lastReveal: stages[0].reveal,
     freeTurnsInStage: 0,
     waitingForDecision: false,
@@ -536,25 +535,6 @@ function buildLayout() {
     ),
   );
   sidebarCopyEl.parent(sidebarHeader);
-
-  const sceneCard = createDiv();
-  sceneCard.class("scene-card");
-  sceneCard.parent(sidebar);
-  createImg("assets/room.svg", "Illustration of room 614").parent(sceneCard);
-
-  const sceneCopy = createDiv();
-  sceneCopy.parent(sceneCard);
-  const sceneEyebrow = createP("");
-  sceneEyebrow.class("eyebrow");
-  sceneEyebrow.html(bilingualInline(bi("Scene", "场景")));
-  sceneEyebrow.parent(sceneCopy);
-
-  sceneLabelEl = createElement("h2", "");
-  sceneLabelEl.html(bilingualBlock(bi("Room 614", "614房间")));
-  sceneLabelEl.parent(sceneCopy);
-  sceneSummaryEl = createP("");
-  sceneSummaryEl.class("scene-summary");
-  sceneSummaryEl.parent(sceneCopy);
 
   const sidebarSection = createDiv();
   sidebarSection.class("sidebar-section");
@@ -666,7 +646,6 @@ function buildLayout() {
 }
 
 function renderAll() {
-  renderScene();
   renderEvidence();
   renderTranscript();
   renderDecisionPanel();
@@ -675,16 +654,14 @@ function renderAll() {
   renderStatus();
 }
 
-function renderScene() {
-  const currentStage = stages[state.stageIndex];
-  sceneLabelEl.html(bilingualBlock(currentStage.label));
-  sceneSummaryEl.html(bilingualBlock(currentStage.summary));
-}
-
 function renderEvidence() {
-  const unlockedItems = Array.from(state.unlockedEvidence).map(
-    (id) => evidenceCatalog[id],
-  );
+  const unlockedItems = Array.from(state.unlockedEvidence)
+    .map((id) => evidenceCatalog[id])
+    .sort((a, b) => {
+      const aRecent = state.recentUnlocks.has(a.id) ? 1 : 0;
+      const bRecent = state.recentUnlocks.has(b.id) ? 1 : 0;
+      return bRecent - aRecent;
+    });
   const locked = state.busy || state.waitingForDecision;
 
   evidenceCountEl.html(`${unlockedItems.length} items / ${unlockedItems.length}项`);
@@ -698,6 +675,7 @@ function renderEvidence() {
       <img src="${item.image}" alt="${escapeHtml(plainText(item.title))}" />
       <div class="evidence-copy">
         <span class="evidence-tag">${bilingualInline(bi("Inspect", "查看"))}</span>
+        ${state.recentUnlocks.has(item.id) ? `<span class="evidence-new">${bilingualInline(bi("New", "新"))}</span>` : ""}
         <h3>${bilingualBlock(item.title)}</h3>
         <p>${bilingualBlock(item.description)}</p>
       </div>
@@ -709,6 +687,7 @@ function renderEvidence() {
       if (locked) {
         return;
       }
+      state.recentUnlocks.delete(item.id);
       submitMessage(bilingualText(item.prompt));
     });
   });
@@ -945,7 +924,14 @@ function getDecisionSet() {
 
 function advanceStage(nextIndex) {
   state.stageIndex = nextIndex;
-  stages[nextIndex].unlocks.forEach((id) => state.unlockedEvidence.add(id));
+  const unlockedNow = [];
+  stages[nextIndex].unlocks.forEach((id) => {
+    if (!state.unlockedEvidence.has(id)) {
+      unlockedNow.push(id);
+    }
+    state.unlockedEvidence.add(id);
+  });
+  state.recentUnlocks = new Set(unlockedNow);
   state.lastReveal = stages[nextIndex].reveal;
   return state.lastReveal;
 }

@@ -305,6 +305,15 @@ h3 .bi-zh {
   text-transform: uppercase;
 }
 
+.evidence-new {
+  display: inline-block;
+  margin: 0 0 8px 10px;
+  color: var(--blue);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .chat-shell {
   display: flex;
   flex-direction: column;
