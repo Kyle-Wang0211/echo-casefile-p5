@@ -419,6 +419,13 @@ const introMessage = bilingualText(
   ),
 );
 
+const completionMessage = bilingualText(
+  bi(
+    "Congratulations. You found the core truth: ECHO's memory was tampered with. We still do not know who trapped you here. Life does not resolve cleanly, and humans cannot trust AI completely. Press Reset to replay.",
+    "恭喜你找到了核心真相：ECHO 的记忆被篡改了。我们仍然不知道是谁把你困在这里。现实并不总有完整答案，人类也不能完全信任 AI。点击 Reset 重新开始。",
+  ),
+);
+
 let state = createInitialState();
 let proxyHealth = {
   reachable: false,
@@ -452,6 +459,7 @@ function createInitialState() {
     freeTurnsInStage: 0,
     waitingForDecision: false,
     completed: false,
+    completionShown: false,
     busy: false,
     nextMessageId: 1,
     messages: [
@@ -702,16 +710,19 @@ function renderTranscript() {
       }
 
       const label =
-        message.role === "assistant"
-          ? bilingualInline(bi("ECHO", "ECHO"))
-          : bilingualInline(bi("YOU", "你"));
+        message.type === "ending"
+          ? bilingualInline(bi("Case Closed", "结案"))
+          : message.role === "assistant"
+            ? bilingualInline(bi("ECHO", "ECHO"))
+            : bilingualInline(bi("YOU", "你"));
       const body =
         message.role === "assistant"
           ? formatAssistantText(message.content)
           : formatChatText(message.content);
+      const extraClass = message.type === "ending" ? " ending" : "";
 
       return `
-        <article class="message ${message.role}">
+        <article class="message ${message.role}${extraClass}">
           <div class="message-label">${label}</div>
           <div class="message-body">${body}</div>
         </article>
@@ -800,7 +811,7 @@ function renderDecisionPanel() {
 
 function renderInteractionMode() {
   const lockedForChoice = state.waitingForDecision;
-  const disabled = state.busy || lockedForChoice;
+  const disabled = state.busy || lockedForChoice || state.completed;
 
   if (disabled) {
     inputEl.attribute("disabled", "true");
@@ -810,7 +821,12 @@ function renderInteractionMode() {
     sendButtonEl.removeAttribute("disabled");
   }
 
-  if (lockedForChoice) {
+  if (state.completed) {
+    inputEl.attribute(
+      "placeholder",
+      "Case closed. Press Reset to replay... / 案件结束。点击 Reset 重玩...",
+    );
+  } else if (lockedForChoice) {
     inputEl.attribute(
       "placeholder",
       "Pick one option in chat to continue... / 请在聊天中选择一个选项继续...",
@@ -824,6 +840,12 @@ function renderStatus() {
   if (state.busy) {
     statusBadgeEl.html("Thinking... / 正在思考...");
     statusBadgeEl.class("badge busy");
+    return;
+  }
+
+  if (state.completed) {
+    statusBadgeEl.html("Case Closed / 已结案");
+    statusBadgeEl.class("badge closed");
     return;
   }
 
@@ -1043,9 +1065,23 @@ function advanceAfterDecision() {
   state.completed = true;
 }
 
+function maybeAppendCompletionMessage() {
+  if (!state.completed || state.completionShown) {
+    return;
+  }
+
+  state.messages.push({
+    id: state.nextMessageId++,
+    role: "assistant",
+    type: "ending",
+    content: completionMessage,
+  });
+  state.completionShown = true;
+}
+
 async function submitMessage(rawText) {
   const text = rawText.trim();
-  if (!text || state.busy) {
+  if (!text || state.busy || state.completed) {
     return;
   }
 
@@ -1071,6 +1107,7 @@ async function submitMessage(rawText) {
       role: "assistant",
       content: stylizeCorruptedReply(assistantReply),
     });
+    maybeAppendCompletionMessage();
     maybeTriggerForcedChoice();
   } catch (error) {
     state.messages.push({
@@ -1122,6 +1159,7 @@ async function submitDecisionChoice(messageId, choiceIndex) {
       role: "assistant",
       content: stylizeCorruptedReply(assistantReply),
     });
+    maybeAppendCompletionMessage();
   } catch (error) {
     state.messages.push({
       id: state.nextMessageId++,

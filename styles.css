@@ -236,6 +236,12 @@ h3 .bi-zh {
   border-color: rgba(51, 90, 119, 0.22);
 }
 
+.badge.closed {
+  color: #6c4e11;
+  background: rgba(209, 173, 51, 0.12);
+  border-color: rgba(209, 173, 51, 0.3);
+}
+
 .badge.subtle {
   color: var(--muted);
 }
@@ -382,6 +388,11 @@ h3 .bi-zh {
 
 .message.choice-turn {
   max-width: 880px;
+}
+
+.message.ending .message-body {
+  background: rgba(209, 173, 51, 0.08);
+  border-color: rgba(209, 173, 51, 0.24);
 }
 
 .message-body p,
