@@ -1,6 +1,5 @@
 const FREE_TURNS_PER_STAGE = 2;
-const DEFAULT_COMPOSER_PLACEHOLDER =
-  "Ask about the room, key, audio, or next clue...";
+const DEFAULT_COMPOSER_PLACEHOLDER = "Type your message...";
 
 const evidenceCatalog = {
   scene: {
@@ -281,7 +280,7 @@ const decisionSets = {
 };
 
 const introMessage =
-  "You are trapped in room 614 with a bloodstained key, an encrypted audio file, and a room that feels staged. Your memory is intact. The record is not. Ask directly, and I will tell you what you can inspect.";
+  "You are trapped in room 614 with a bloodstained key and an encrypted audio file. Your memory is intact. The record is not.";
 
 let state = createInitialState();
 let proxyHealth = {
@@ -570,29 +569,8 @@ function renderTranscript() {
 }
 
 function renderSuggestions() {
-  if (state.waitingForDecision) {
-    suggestionsBarEl.addClass("hidden");
-    suggestionListEl.html("");
-    return;
-  }
-
-  suggestionsBarEl.removeClass("hidden");
+  suggestionsBarEl.addClass("hidden");
   suggestionListEl.html("");
-
-  stages[state.stageIndex].suggestions.forEach((suggestion) => {
-    const button = createButton(suggestion);
-    button.class("suggestion-chip");
-    button.parent(suggestionListEl);
-    if (state.busy) {
-      button.attribute("disabled", "true");
-    }
-    button.mousePressed(() => {
-      if (state.busy) {
-        return;
-      }
-      submitMessage(suggestion);
-    });
-  });
 }
 
 function renderDecisionPanel() {
